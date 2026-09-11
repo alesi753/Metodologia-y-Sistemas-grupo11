@@ -1,11 +1,11 @@
 # Metodologia-y-Sistemas-grupo11
-# 📝 Caso de Uso: Gestionar Actividad Académica y Trámites
+# Caso de Uso: Gestionar Actividad Académica y Trámites
 
 **Sistema:** Sistema de Gestión de Aulas Virtuales
 **Autores:** David, Naim, Alejo y Amado
 **Fecha de Creación:** 11/09/2026 | **Última Modificación:** 11/09/2026
 
-## 📋 Resumen
+## Resumen
 | Atributo | Descripción |
 | :--- | :--- |
 | **Descripción** | Describe el proceso mediante el cual un alumno autenticado accede al sistema para visualizar su estado académico y ejecutar trámites estudiantiles. |
@@ -16,7 +16,7 @@
 
 ---
 
-## 🔄 Flujo de Eventos
+## Flujo de Eventos
 
 ### Curso Normal (Flujo Principal)
 1. **El Alumno** ingresa sus credenciales en la pantalla de inicio de sesión.
