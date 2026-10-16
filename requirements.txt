@@ -1,0 +1,4 @@
+# Declara las 2 dependencias: Django y anthropic 
+# Manifest
+Django>=5.0
+anthropic>=0.40
