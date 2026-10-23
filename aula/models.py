@@ -103,8 +103,9 @@ class Unidad(models.Model):
         completados = Progreso.objects.filter(
             alumno=alumno, completado_en__isnull=False,
         ).values('contenido')
-        pendientes = self.contenidos.filter(publicado=True).exclude(pk__in=completados)
-        return not pendientes.exists()
+        publicados = self.contenidos.filter(publicado=True)
+        # Una unidad sin contenido publicado no está completa: el alumno espera ahí.
+        return publicados.exists() and not publicados.exclude(pk__in=completados).exists()
 
     def esta_desbloqueada(self, alumno):
         """Secuencial: la unidad se abre cuando el alumno completó la anterior."""
