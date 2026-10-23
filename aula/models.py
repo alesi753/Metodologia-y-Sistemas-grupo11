@@ -1,5 +1,6 @@
 # Módulo de datos: entidades del aula virtual (ver docs/schemas/schema.mmd)
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -87,6 +88,7 @@ class Unidad(models.Model):
     orden = models.PositiveSmallIntegerField()
     titulo = models.CharField(max_length=200)
     conceptos = models.JSONField(default=list, blank=True)
+    fecha_apertura = models.DateField(null=True, blank=True)
     fecha_limite = models.DateField(null=True, blank=True)
 
     class Meta:
@@ -99,6 +101,10 @@ class Unidad(models.Model):
     def __str__(self):
         return f'Unidad {self.orden}: {self.titulo}'
 
+    def clean(self):
+        if self.fecha_apertura and self.fecha_limite and self.fecha_apertura > self.fecha_limite:
+            raise ValidationError('La fecha de apertura no puede ser posterior a la fecha límite.')
+
     def completada_por(self, alumno):
         completados = Progreso.objects.filter(
             alumno=alumno, completado_en__isnull=False,
@@ -108,7 +114,9 @@ class Unidad(models.Model):
         return publicados.exists() and not publicados.exclude(pk__in=completados).exists()
 
     def esta_desbloqueada(self, alumno):
-        """Secuencial: la unidad se abre cuando el alumno completó la anterior."""
+        """Se abre al llegar su fecha de apertura y cuando el alumno completó la anterior."""
+        if self.fecha_apertura and timezone.localdate() < self.fecha_apertura:
+            return False
         anterior = self.catedra.unidades.filter(orden__lt=self.orden).last()
         return anterior is None or anterior.completada_por(alumno)
 
