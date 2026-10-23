@@ -1,32 +1,42 @@
-# Metodologia-y-Sistemas-grupo11
-# Caso de Uso: Gestionar Actividad Académica y Trámites
+# Aula Virtual - Grupo 11
 
-**Sistema:** Sistema de Gestión de Aulas Virtuales
-**Autores:** David, Naim, Alejo y Amado
-**Fecha de Creación:** 11/09/2026 | **Última Modificación:** 11/09/2026
+Metodología de Sistemas II, TUP 2026. David, Naim, Alejo y Amado.
 
-## Resumen
-| Atributo | Descripción |
-| :--- | :--- |
-| **Descripción** | Describe el proceso mediante el cual un alumno autenticado accede al sistema para visualizar su estado académico y ejecutar trámites estudiantiles. |
-| **Actor Primario** | Alumno |
-| **Actores Secundarios** | Ninguno (No hay sistemas externos involucrados en esta etapa) |
-| **Precondiciones** | El alumno debe estar registrado en la institución y poseer credenciales de acceso activas. |
-| **Postcondiciones** | El alumno visualiza la información solicitada o completa el trámite deseado de forma exitosa. |
+## Objetivo
 
----
+Aula virtual donde cada cursada es un recorrido de unidades secuenciales. El alumno avanza cuando completa la unidad anterior y el profesor genera material a partir del programa de su cátedra.
 
-## Flujo de Eventos
+- El profesor sube el PDF del programa y la IA lo convierte en unidades y conceptos.
+- Elige conceptos y una perspectiva, la IA sugiere un formato (texto, flashcards, cuestionario o práctica) y arma un borrador para revisar.
+- El tutor IA no da respuestas: indica en qué unidad y contenido está el tema.
+- Sin notas: el progreso se mide por contenidos completados, en término o fuera de término.
 
-### Curso Normal (Flujo Principal)
-1. **El Alumno** ingresa sus credenciales en la pantalla de inicio de sesión.
-2. **El Sistema** valida las credenciales y despliega el panel principal (dashboard).
-3. **El Alumno** selecciona un área específica desde el menú principal (ej. "Actividad Académica" o "Trámites").
-4. **El Sistema** carga y muestra las opciones y datos disponibles correspondientes a esa área.
-5. **El Alumno** selecciona un elemento, trámite o consulta específica para interactuar.
-6. **El Sistema** procesa la solicitud y devuelve el resultado esperado (formulario, certificado, historial de notas, etc.).
+## Stack
 
-### Cursos Alternativos (Flujos de Excepción)
-* **1.1 Credenciales Inválidas:** Si los datos ingresados en el paso 1 son incorrectos, el Sistema muestra un mensaje de error y solicita reingresar las credenciales. Retorna al paso 1.
-* **4.1 Área en Mantenimiento / No Disponible:** Si el área seleccionada en el paso 3 está deshabilitada, el Sistema notifica que la sección no se encuentra disponible temporalmente. Retorna al paso 2.
-* **6.1 Elemento Restringido:** Si el elemento seleccionado en el paso 5 requiere permisos especiales o requisitos que el alumno no cumple (ej. correlativas pendientes para un trámite), el Sistema emite una alerta indicando el motivo de la restricción. Retorna al paso 4.
+| Capa | Elección |
+|---|---|
+| Backend | Python 3.12+, Django 6.1 |
+| Base de datos | SQLite |
+| Frontend | Templates de Django |
+| IA | Claude (SDK anthropic) |
+
+## Patrones de diseño
+
+Detalle en [docs/decisiones-diseno.md](docs/decisiones-diseno.md).
+
+- Facade: `aula/services/ia_facade.py` concentra el uso de la IA.
+- Adapter: traduce respuestas y errores del SDK a tipos propios.
+- Strategy: cada formato de contenido define su prompt, template y criterio de completado.
+- Decorator: `@rol_requerido` para restringir vistas por rol.
+- Observer: signals de Django ante cambios de progreso.
+
+## Instalación
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python manage.py migrate
+python manage.py seed
+python manage.py runserver
+```
