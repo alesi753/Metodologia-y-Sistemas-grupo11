@@ -35,8 +35,8 @@ Detalle en [docs/decisiones-diseno.md](docs/decisiones-diseno.md).
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
+export ANTHROPIC_API_KEY=tu-clave
 python manage.py migrate
-python manage.py seed
+python manage.py createsuperuser
 python manage.py runserver
 ```
