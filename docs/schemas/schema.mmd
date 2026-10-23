@@ -1,0 +1,82 @@
+classDiagram
+    direction TB
+
+    class Usuario {
+        +username: str (legajo)
+        +first_name: str
+        +last_name: str
+        +email: str
+        +dni: str
+        +fecha_nacimiento: date
+        +groups: Group[*]
+    }
+
+    class Alumno {
+        <<proxy>>
+        +cursadas() Catedra[*]
+        +unidad_actual(catedra) Unidad
+    }
+
+    class Profesor {
+        <<proxy>>
+        +catedras() Catedra[*]
+    }
+
+    class Carrera {
+        +nombre: str
+    }
+
+    class Materia {
+        +nombre: str
+    }
+
+    class Catedra {
+        +anio: int
+        +cuatrimestre: int
+        +programa: JSON
+    }
+
+    class Unidad {
+        +orden: int
+        +titulo: str
+        +conceptos: JSON
+        +fecha_limite: date
+        +esta_desbloqueada(alumno) bool
+    }
+
+    class Contenido {
+        +formato: Formato
+        +titulo: str
+        +cuerpo: JSON
+        +publicado: bool
+    }
+
+    class Formato {
+        <<enumeration>>
+        TEXTO
+        FLASHCARDS
+        CUESTIONARIO
+        PRACTICA
+    }
+
+    class Progreso {
+        +completado_en: datetime?
+        +intentos: int
+        +respuesta: JSON
+        +archivo: File?
+        +en_termino() bool
+    }
+
+    Usuario <|-- Alumno
+    Usuario <|-- Profesor
+
+    Carrera "1" -- "*" Materia
+    Materia "1" -- "*" Catedra
+    Catedra "*" -- "*" Profesor : profesores
+    Catedra "*" -- "*" Alumno : alumnos
+    Catedra "1" *-- "*" Unidad
+    Unidad "1" *-- "*" Contenido
+    Contenido ..> Formato
+    Profesor "1" -- "*" Contenido : autor
+    Alumno "1" -- "*" Progreso
+    Contenido "1" -- "*" Progreso
