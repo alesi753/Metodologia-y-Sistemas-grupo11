@@ -1,0 +1,21 @@
+{% extends 'aula/base.html' %}
+
+{% block contenido %}
+{% if cursadas %}
+<h2>Mis cursadas</h2>
+{% for catedra in cursadas %}
+<article><a href="{% url 'roadmap' catedra.id %}">{{ catedra }}</a></article>
+{% endfor %}
+{% endif %}
+
+{% if catedras %}
+<h2>Cátedras a cargo</h2>
+{% for catedra in catedras %}
+<article>{{ catedra }}</article>
+{% endfor %}
+{% endif %}
+
+{% if not cursadas and not catedras %}
+<p>Todavía no tenés cursadas ni cátedras asignadas.</p>
+{% endif %}
+{% endblock %}

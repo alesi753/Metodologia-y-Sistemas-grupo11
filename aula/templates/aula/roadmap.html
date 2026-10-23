@@ -1,0 +1,44 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}{{ catedra.materia }}{% endblock %}
+
+{% block contenido %}
+<hgroup>
+  <h2>{{ catedra.materia }}</h2>
+  <p>{{ catedra.anio }}, {{ catedra.get_cuatrimestre_display }} cuatrimestre</p>
+</hgroup>
+
+{% for item in unidades %}
+<article>
+  <header>
+    <strong>{{ item.unidad }}</strong>
+    <small>({{ item.estado }})</small>
+  </header>
+
+  {% if item.estado == 'bloqueada' %}
+    {% if item.unidad.fecha_apertura and item.unidad.fecha_apertura > hoy %}
+    <p>Abre el {{ item.unidad.fecha_apertura }}.</p>
+    {% else %}
+    <p>Completá la unidad anterior para continuar.</p>
+    {% endif %}
+  {% else %}
+    <ul>
+      {% for contenido in item.contenidos %}
+      <li>
+        {% if contenido.id in hechos %}✔{% endif %}
+        {{ contenido.titulo }} <small>({{ contenido.get_formato_display }})</small>
+      </li>
+      {% empty %}
+      <li>Todavía no hay contenido publicado.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if item.unidad.fecha_limite %}
+  <footer><small>Fecha límite: {{ item.unidad.fecha_limite }}</small></footer>
+  {% endif %}
+</article>
+{% empty %}
+<p>La cátedra todavía no tiene unidades.</p>
+{% endfor %}
+{% endblock %}
