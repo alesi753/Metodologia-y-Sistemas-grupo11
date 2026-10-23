@@ -54,3 +54,9 @@ Objetivo: Centralizar la creación de objetos. En este proyecto: No requeridos.
 * *Factory:* Rechazado. Se colapsó la herencia de Contenido utilizando un campo discriminador (tipo), eliminando la necesidad de seleccionar entre múltiples subclases concretas.
 * *Builder:* Rechazado. Las entidades de dominio (Catedra, Cursada, Unidad) no poseen construcciones de múltiples pasos complejos. 
 * *Singleton:* Rechazado. El framework ya administra eficientemente el ciclo de vida de los recursos globales (conexión SQLite en settings.py). Implementarlo manualmente introduciría estado global oculto y dificultaría la inyección en las pruebas unitarias.
+
+---
+
+## 4. Reutilización del framework
+
+* *Panel de administración:* El alta de carreras, materias, cátedras y usuarios se resuelve configurando aula/admin.py, que Django descubre por convención y convierte en un CRUD completo con validación y permisos sin escribir vistas ni formularios propios.
