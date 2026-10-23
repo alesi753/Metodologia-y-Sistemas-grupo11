@@ -43,6 +43,8 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'aula.Usuario'
+LOGIN_REDIRECT_URL = 'inicio'
+LOGOUT_REDIRECT_URL = 'login'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
