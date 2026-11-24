@@ -1,62 +1,96 @@
-# Decisiones de Diseño y Arquitectura - Aula Virtual
+# Decisiones de diseño - Aula Virtual
 
-*Contexto:* Documento de registro de decisiones técnicas (ADR) para el Taller II de Metodología de Sistemas II. Se prioriza la mantenibilidad, la reducción de deuda técnica y la simplicidad (Clean Code), aplicando patrones de diseño solo frente a tensiones de acoplamiento reales.
+Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un patrón solo cuando resuelve un problema concreto del producto, y cada uno indica en qué estado está realmente en el código:
 
----
+- **Aplicado:** ya está en el repo.
+- **Planificado:** decidido, con la rama que lo implementa (ver [plan de trabajo](plan-de-trabajo.md)).
+- **Descartado:** evaluado y rechazado, con el motivo.
 
-## 1. Patrones Estructurales (Aplicados)
-Objetivo: Conectar componentes sin propagar incompatibilidades ni ensuciar la lógica de dominio.
+## Resumen
 
-### 1.1. Facade (Fachada)
-* *Dónde:* aula/services/ia_facade.py (AsistenteIAFacade).
-* *Problema:* La generación de sílabos requiere orquestar múltiples pasos técnicos: leer credenciales, armar el prompt JSON, llamar a la API de Anthropic y capturar excepciones.
-* *Decisión:* Ocultar este ritual técnico detrás de una Fachada. Las vistas web consumen un único método limpio (generar_silabo(materia)).
-* *Beneficio:* Reducción drástica del acoplamiento. La vista expresa la intención de alto nivel sin conocer la infraestructura de la IA.
-
-### 1.2. Adapter (Adaptador)
-* *Dónde:* Integrado dentro de ia_facade.py.
-* *Problema:* El SDK de Anthropic (Claude) utiliza sus propias firmas, modelos de datos y excepciones.
-* *Decisión:* Envolver el cliente de Anthropic para que traduzca la respuesta externa al formato de diccionario/JSON estandarizado que espera nuestro dominio.
-* *Beneficio:* Si a futuro se migra de Anthropic a OpenAI, el cambio queda aislado en el adaptador sin alterar ni una línea del resto del sistema.
-
-### 1.3. Decorator (Decorador)
-* *Dónde:* Funciones de views.py.
-* *Problema:* Validar la sesión y el rol (Alumno vs. Profesor) dentro de cada vista genera duplicación masiva (Code Smell) y mezcla reglas de seguridad con lógica de negocio.
-* *Decisión:* Utilizar los decoradores nativos de Django (@login_required, @user_passes_test).
-* *Beneficio:* Interceptan la petición agregando la capa de validación antes de la ejecución de la función. Protege las rutas manteniendo las vistas con una única responsabilidad (SRP).
+| Patrón | Tipo | Estado | Dónde | Rama |
+|---|---|---|---|---|
+| Facade | Estructural | Planificado | `aula/services/ia_facade.py` | `backend/ia-facade` |
+| Adapter | Estructural | Planificado | `aula/services/ia_facade.py` | `backend/ia-facade` |
+| Decorator | Estructural | Planificado | `aula/decorators.py` | `backend/rol-requerido` |
+| Strategy | Comportamiento | Planificado | `aula/formatos.py` | `backend/formatos-contenido` |
+| Observer | Comportamiento | Planificado | `aula/signals.py` | `backend/observer` |
+| Command | Comportamiento | Descartado | — | — |
+| Factory, Builder, Singleton | Creacionales | Descartados | — | — |
 
 ---
 
-## 2. Patrones de Comportamiento
-Objetivo: Organizar interacciones, reacciones y responsabilidades.
+## 1. Patrones estructurales
 
-### 2.1. Observer (Aplicado / Preparado)
-* *Dónde:* aula/signals.py (Django Signals).
-* *Problema:* La creación de un contenido o la calificación de una entrega debe disparar acciones secundarias (ej. logs, notificaciones futuras por email) sin bloquear el proceso de guardado (Publisher).
-* *Decisión:* Desacoplar las reacciones usando el patrón Observer mediante señales (post_save). 
-* *Beneficio:* El modelo de base de datos guarda la entidad y emite el evento; los suscriptores reaccionan de manera independiente, respetando el principio Open/Closed (OCP).
+### 1.1. Facade
 
-### 2.2. Strategy (Descartado temporalmente)
-* *Problema evaluado:* ¿Múltiples formas de calcular la aprobación o evaluar entregas?
-* *Justificación de rechazo:* Actualmente el sistema cuenta con una *única regla fija* (evaluación de la condición esta_desbloqueada). Implementar clases Strategy para un único algoritmo es overengineering. 
-* *Evolución:* Si a futuro se integran múltiples métodos de evaluación (PDF, Cuestionario Automático, Oral por Zoom), se introducirá Strategy para evitar condicionales gigantes (if/elif).
+- **Estado:** planificado.
+- **Problema:** la IA se usa en dos lugares muy distintos. Para el profesorado genera contenido a partir del programa de la materia; para el alumno funciona como tutor. En los dos casos hay que armar el pedido, llamar a la API y manejar errores. Si eso queda en las vistas, cada vista termina sabiendo cómo funciona la IA.
+- **Decisión:** una sola clase, `AsistenteIA`, con un método por cada cosa que el producto necesita: importar el programa, generar un contenido y responder una consulta del tutor. Las vistas solo llaman a esos métodos.
+- **Beneficio:** si cambia cómo le pedimos las cosas a la IA, se toca un solo archivo.
 
-### 2.3. Command (Descartado)
-* *Problema evaluado:* ¿Tratar las acciones del usuario como objetos para encolarlas o reintentarlas?
-* *Justificación de rechazo:* Las acciones en el Aula Virtual (inscribirse, entregar, calificar) son peticiones HTTP síncronas e inmediatas. No existen procesos batch pesados ni necesidad de Undo/Redo que justifiquen la complejidad de encolar comandos.
+### 1.2. Adapter
 
----
+- **Estado:** planificado.
+- **Problema:** el SDK de Anthropic tiene sus propios tipos de respuesta y de error. No queremos que se filtren al resto del sistema ni depender de la API para correr los tests.
+- **Decisión:** un adaptador traduce lo que devuelve el SDK a tipos nuestros. La fachada trabaja contra esa interfaz, así que en los tests se usa un proveedor falso.
+- **Beneficio:** cambiar de proveedor de IA, o probar sin conexión, no afecta al resto del código.
 
-## 3. Patrones Creacionales (Descartados)
-Objetivo: Centralizar la creación de objetos. En este proyecto: No requeridos.
+### 1.3. Decorator
 
-* *Decisión global:* El ORM de Django (models.py) centraliza la persistencia y la creación de entidades, actuando como única fuente de verdad. La instanciación directa es el mecanismo nativo, simple y estable.
-* *Factory:* Rechazado. Se colapsó la herencia de Contenido utilizando un campo discriminador (tipo), eliminando la necesidad de seleccionar entre múltiples subclases concretas.
-* *Builder:* Rechazado. Las entidades de dominio (Catedra, Cursada, Unidad) no poseen construcciones de múltiples pasos complejos. 
-* *Singleton:* Rechazado. El framework ya administra eficientemente el ciclo de vida de los recursos globales (conexión SQLite en settings.py). Implementarlo manualmente introduciría estado global oculto y dificultaría la inyección en las pruebas unitarias.
+- **Estado:** aplicado en parte. Hoy las vistas usan `@login_required`, que solo verifica que haya sesión. Falta controlar el rol.
+- **Problema:** alumno y profesor ven pantallas distintas. Validar el rol adentro de cada vista repite código y mezcla la seguridad con la lógica de la pantalla.
+- **Decisión:** un decorador propio, `@rol_requerido('profesor')`, que envuelve la vista y corta el acceso antes de que se ejecute. Elegimos uno propio en lugar de `@user_passes_test` suelto para tener una sola regla de roles en un solo lugar.
+- **Beneficio:** cada vista queda con una única responsabilidad, y la regla de roles se cambia en un solo archivo.
 
 ---
 
-## 4. Reutilización del framework
+## 2. Patrones de comportamiento
 
-* *Panel de administración:* El alta de carreras, materias, cátedras y usuarios se resuelve configurando aula/admin.py, que Django descubre por convención y convierte en un CRUD completo con validación y permisos sin escribir vistas ni formularios propios.
+### 2.1. Strategy
+
+- **Estado:** planificado. Antes estaba descartado porque había una sola regla; eso cambió.
+- **Problema:** un contenido puede ser un texto, un cuestionario o una práctica para entregar. Cada formato se muestra distinto, guarda datos distintos y se completa por motivos distintos: el texto al marcarlo como leído, el cuestionario al aprobarlo y la práctica al entregar el archivo. Resolverlo con `if/elif` por formato lo desparrama por todo el sistema.
+- **Decisión:** una estrategia por formato que define su template, cómo valida su contenido y cuándo se considera completo. El modelo `Contenido` elige la estrategia según su campo `formato`.
+- **Beneficio:** agregar un formato nuevo es agregar una clase, sin tocar las que ya funcionan.
+
+### 2.2. Observer
+
+- **Estado:** planificado. `aula/signals.py` existe pero está vacío.
+- **Problema:** cuando un alumno completa un contenido o la cátedra publica un aviso, pasan cosas secundarias, como avisarle que se desbloqueó la unidad siguiente o notificar a los inscriptos. Esas reacciones no deberían frenar ni ensuciar el guardado.
+- **Decisión:** usar signals de Django (`post_save`). El modelo guarda y emite el evento; los receptores reaccionan cada uno por su lado.
+- **Beneficio:** sumar una reacción nueva no obliga a tocar el código que guarda.
+
+### 2.3. Command
+
+- **Estado:** descartado.
+- **Motivo:** las acciones del aula (entregar, completar, registrar asistencia) son pedidos simples que se resuelven en el momento. No hay colas, reintentos ni deshacer que justifiquen convertirlas en objetos.
+
+---
+
+## 3. Patrones creacionales
+
+- **Estado:** descartados.
+- **Motivo general:** el ORM de Django ya centraliza la creación y la persistencia de las entidades. Crear objetos directamente es simple y suficiente.
+- **Factory:** `Contenido` es un solo modelo con un campo `formato`. No hay subclases entre las que elegir; la variación por formato la resuelve Strategy.
+- **Builder:** ninguna entidad se arma en varios pasos complejos.
+- **Singleton:** Django ya maneja los recursos globales, como la conexión a la base. Hacerlo a mano agrega estado oculto y complica los tests.
+
+---
+
+## 4. Lo que resuelve el framework
+
+- **Panel de administración (aplicado):** la carga de datos institucionales y de cada cursada se hace desde `aula/admin.py`, sin escribir formularios propios.
+- **Roles con grupos de Django (aplicado):** `Alumno` y `Profesor` son vistas sobre el mismo `Usuario`, filtradas por el grupo al que pertenecen. Sirve de base para el Decorator de roles.
+- **Herencia de templates (aplicado):** todas las pantallas extienden un template base con la navegación común.
+
+---
+
+## 5. Decisiones de producto
+
+Afectan el diseño, así que quedan registradas acá. El detalle está en los [casos de uso del alumno](casos-de-uso/alumno.md).
+
+1. **Sin calificaciones.** Parciales, entregas, presentaciones y finales son fechas del calendario (`Evento`). La plataforma mide progreso, no pone notas.
+2. **Alcance del tutor.** Explica el tema en general y enlaza el material donde se estudia. No resuelve cuestionarios ni prácticas.
+3. **Fe de erratas.** Si la cátedra corrige contenido de una unidad que el alumno ya completó, la corrección va a una unidad aparte que no bloquea el recorrido.
+4. **Tres formatos de contenido:** texto, cuestionario y práctica. Las flashcards se descartaron porque aportaban poco frente a los otros dos.
