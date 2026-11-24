@@ -38,6 +38,7 @@ source .venv/bin/activate        # en fish: source .venv/bin/activate.fish
 pip install -r requirements.txt
 export ANTHROPIC_API_KEY=tu-clave
 python manage.py migrate
+python manage.py cargar_demo     # opcional: cursada de ejemplo; al final muestra usuarios y URLs
 python manage.py createsuperuser
 python manage.py runserver
 ```
