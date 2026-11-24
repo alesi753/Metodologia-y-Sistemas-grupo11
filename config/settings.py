@@ -128,6 +128,11 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
+# IA: modelo de Claude que usa AsistenteIA (aula/services/ia_facade.py).
+# La clave se lee de la variable de entorno ANTHROPIC_API_KEY.
+IA_MODELO = os.environ.get('IA_MODELO', 'claude-opus-5-5')
+
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
