@@ -1,36 +1,25 @@
-"""Acceso a la IA del aula (ver docs/decisiones-diseno.md, §1.1 y §1.2).
+"""Fachada de la IA del aula (ver docs/decisiones-diseno.md, §1.1).
 
-- Facade: `AsistenteIA` expone un método por cada necesidad del producto.
-  Las vistas solo hablan con él.
-- Adapter: `ProveedorIA` es la interfaz contra la que trabaja la fachada.
-  `AnthropicAdapter` envuelve el SDK de Anthropic y `ProveedorFalso` responde
-  sin conexión, para tests y demos.
+`AsistenteIA` expone un método por cada necesidad del producto y las vistas
+solo hablan con él. Delega el pedido en un `ProveedorIA` (ver
+`ia_proveedores.py`), así que no sabe qué servicio de IA hay detrás.
 
-Nada de lo que devuelve este módulo es un tipo del SDK: el resto del sistema
+Nada de lo que devuelve este módulo es un tipo de un SDK: el resto del sistema
 solo ve las dataclasses de abajo y `ErrorIA`.
 """
-import base64
 import json
-import os
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-
-from django.conf import settings
 
 from aula.models import Contenido
 
-MODELO_POR_DEFECTO = 'claude-sonnet-5-5'
+from .ia_proveedores import ErrorIA, crear_proveedor
 
-# Cuánto razona el modelo en cada pedido. Generar material vale más esfuerzo;
-# las consultas del tutor son muchas y cortas, así que van con esfuerzo bajo.
-ESFUERZO_POR_TAREA = {'programa': 'medium', 'contenido': 'medium', 'tutor': 'low'}
-
+__all__ = [
+    'AsistenteIA', 'BorradorContenido', 'ErrorIA', 'ProgramaImportado', 'Referencia',
+    'RespuestaTutor', 'UnidadPropuesta',
+]
 
 # --- Tipos del dominio -------------------------------------------------------
-
-class ErrorIA(Exception):
-    """Único error que ve el resto del sistema cuando la IA falla."""
-
 
 @dataclass
 class UnidadPropuesta:
@@ -61,124 +50,6 @@ class Referencia:
 class RespuestaTutor:
     texto: str
     referencias: list[Referencia] = field(default_factory=list)
-
-
-# --- Adapter -----------------------------------------------------------------
-
-class ProveedorIA(ABC):
-    """Interfaz que la fachada espera de cualquier proveedor de IA."""
-
-    @abstractmethod
-    def completar(self, tarea, sistema, mensaje, esquema, documento_pdf=None) -> dict:
-        """Devuelve la respuesta ya parseada como dict, con la forma de `esquema`.
-
-        `tarea` identifica el pedido ('programa', 'contenido' o 'tutor'). El
-        proveedor real lo usa para elegir el esfuerzo; el falso, la respuesta.
-        """
-
-
-class AnthropicAdapter(ProveedorIA):
-    """Traduce el SDK de Anthropic a la interfaz `ProveedorIA`."""
-
-    def __init__(self, modelo=None, cliente=None):
-        self.modelo = modelo or getattr(settings, 'IA_MODELO', MODELO_POR_DEFECTO)
-        self._cliente = cliente
-        self.esfuerzos = {**ESFUERZO_POR_TAREA, **getattr(settings, 'IA_ESFUERZO', {})}
-
-    def _obtener_cliente(self):
-        import anthropic
-
-        if self._cliente is None:
-            clave = os.environ.get('ANTHROPIC_API_KEY')
-            if not clave:
-                raise ErrorIA('Falta la variable de entorno ANTHROPIC_API_KEY.')
-            self._cliente = anthropic.Anthropic(api_key=clave)
-        return self._cliente
-
-    def completar(self, tarea, sistema, mensaje, esquema, documento_pdf=None):
-        import anthropic
-
-        contenido = []
-        if documento_pdf:
-            contenido.append({
-                'type': 'document',
-                'source': {
-                    'type': 'base64',
-                    'media_type': 'application/pdf',
-                    'data': base64.standard_b64encode(documento_pdf).decode(),
-                },
-            })
-        contenido.append({'type': 'text', 'text': mensaje})
-
-        try:
-            respuesta = self._obtener_cliente().messages.create(
-                model=self.modelo,
-                max_tokens=16000,
-                system=sistema,
-                messages=[{'role': 'user', 'content': contenido}],
-                output_config={
-                    'effort': self.esfuerzos.get(tarea, 'medium'),
-                    # Salida estructurada: la API garantiza JSON con esta forma.
-                    'format': {'type': 'json_schema', 'schema': esquema},
-                },
-            )
-        except anthropic.AnthropicError as error:
-            raise ErrorIA(f'No se pudo consultar a la IA: {error}') from error
-
-        if respuesta.stop_reason == 'refusal':
-            raise ErrorIA('La IA rechazó el pedido.')
-        if respuesta.stop_reason == 'max_tokens':
-            raise ErrorIA('La respuesta de la IA quedó incompleta.')
-
-        texto = next((b.text for b in respuesta.content if b.type == 'text'), '')
-        try:
-            return json.loads(texto)
-        except json.JSONDecodeError as error:
-            raise ErrorIA('La IA devolvió un JSON inválido.') from error
-
-
-class ProveedorFalso(ProveedorIA):
-    """Responde siempre lo mismo, sin red. Guarda los pedidos para inspeccionarlos."""
-
-    RESPUESTAS = {
-        'programa': {
-            'unidades': [
-                {'titulo': 'Introducción a la materia', 'conceptos': ['Objetivos', 'Conceptos básicos']},
-                {'titulo': 'Desarrollo del tema central', 'conceptos': ['Modelos', 'Casos de estudio']},
-            ],
-        },
-        'contenido': {
-            'formato': 'cuestionario',
-            'titulo': 'Repaso de la unidad',
-            'cuerpo': {
-                'aprobacion': 0.7,
-                'preguntas': [{
-                    'enunciado': '¿Qué concepto se trabajó en la unidad?',
-                    'opciones': ['El primero', 'Ninguno'],
-                    'correcta': 0,
-                }],
-            },
-        },
-        'tutor': {
-            'texto': 'Es un tema general de la unidad. Te conviene repasar el material indicado.',
-            'referencias': [],
-        },
-    }
-
-    def __init__(self, respuestas=None):
-        self.respuestas = {**self.RESPUESTAS, **(respuestas or {})}
-        self.llamadas = []
-
-    def completar(self, tarea, sistema, mensaje, esquema, documento_pdf=None):
-        self.llamadas.append({'tarea': tarea, 'mensaje': mensaje, 'documento_pdf': documento_pdf})
-        return self.respuestas[tarea]
-
-
-def proveedor_por_defecto():
-    """Anthropic si hay clave configurada; si no, el proveedor falso."""
-    if os.environ.get('ANTHROPIC_API_KEY'):
-        return AnthropicAdapter()
-    return ProveedorFalso()
 
 
 # --- Esquemas de respuesta ---------------------------------------------------
@@ -288,7 +159,7 @@ class AsistenteIA:
     """Fachada de la IA. No guarda nada: devuelve borradores y las vistas persisten."""
 
     def __init__(self, proveedor=None):
-        self.proveedor = proveedor or proveedor_por_defecto()
+        self.proveedor = proveedor or crear_proveedor()
 
     def importar_programa(self, pdf: bytes) -> ProgramaImportado:
         datos = self.proveedor.completar(

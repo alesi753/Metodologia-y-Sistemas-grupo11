@@ -128,11 +128,24 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# IA: modelo de Claude que usa AsistenteIA (aula/services/ia_facade.py).
-# La clave se lee de la variable de entorno ANTHROPIC_API_KEY.
-IA_MODELO = os.environ.get('IA_MODELO', 'claude-sonnet-5-5')
-# Esfuerzo por tarea: medio para generar material, bajo para el tutor.
-IA_ESFUERZO = {'programa': 'medium', 'contenido': 'medium', 'tutor': 'low'}
+# IA (aula/services/ia_proveedores.py). Servicio que usa AsistenteIA:
+# 'openrouter' (desarrollo, modelos gratis), 'anthropic' (instalación con cuenta
+# de API propia) o 'falso' (sin conexión, respuestas fijas).
+IA_PROVEEDOR = os.environ.get('IA_PROVEEDOR', 'openrouter')
+
+# OpenRouter: clave en OPENROUTER_API_KEY. Los modelos gratis cambian seguido;
+# los disponibles están en https://openrouter.ai/models?q=free
+IA_OPENROUTER_MODELO = os.environ.get('IA_OPENROUTER_MODELO', 'deepseek/deepseek-chat-v3-0324:free')
+IA_OPENROUTER_MODELOS = {
+    'programa': IA_OPENROUTER_MODELO,
+    'contenido': IA_OPENROUTER_MODELO,
+    'tutor': IA_OPENROUTER_MODELO,
+}
+
+# Anthropic: clave en ANTHROPIC_API_KEY. Esfuerzo medio para generar material
+# y bajo para el tutor, que recibe muchas consultas cortas.
+IA_ANTHROPIC_MODELO = os.environ.get('IA_ANTHROPIC_MODELO', 'claude-sonnet-5-5')
+IA_ANTHROPIC_ESFUERZO = {'programa': 'medium', 'contenido': 'medium', 'tutor': 'low'}
 
 
 # Email

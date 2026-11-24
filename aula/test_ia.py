@@ -6,11 +6,15 @@ from unittest.mock import Mock, patch
 
 import anthropic
 import httpx2 as httpx
-from django.test import TestCase
+import openai
+from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase, override_settings
 
 from .models import Carrera, Catedra, Contenido, Materia, Unidad, Usuario
-from .services.ia_facade import (
-    AnthropicAdapter, AsistenteIA, BorradorContenido, ErrorIA, ProveedorFalso, Referencia,
+from .management.commands.demo_ia import pdf_de_ejemplo
+from .services.ia_facade import AsistenteIA, BorradorContenido, ErrorIA, Referencia
+from .services.ia_proveedores import (
+    AnthropicAdapter, OpenRouterAdapter, ProveedorFalso, crear_proveedor, texto_del_pdf,
 )
 
 
@@ -137,3 +141,72 @@ class AnthropicAdapterTests(TestCase):
         argumentos = cliente.messages.create.call_args.kwargs
         self.assertEqual(argumentos['output_config']['effort'], 'low')
         self.assertEqual(argumentos['model'], 'claude-sonnet-5-5')
+
+
+def respuesta_openrouter(contenido, finish_reason='stop'):
+    return SimpleNamespace(choices=[SimpleNamespace(
+        finish_reason=finish_reason, message=SimpleNamespace(content=contenido),
+    )])
+
+
+class OpenRouterAdapterTests(TestCase):
+    MODELOS = {'programa': 'modelo-a', 'contenido': 'modelo-a', 'tutor': 'modelo-b'}
+
+    def adaptador(self, respuesta):
+        cliente = Mock()
+        cliente.chat.completions.create.return_value = respuesta
+        return OpenRouterAdapter(modelos=self.MODELOS, cliente=cliente), cliente
+
+    def test_pide_json_con_esquema_y_modelo_por_tarea(self):
+        adaptador, cliente = self.adaptador(respuesta_openrouter('{"ok": true}'))
+        self.assertEqual(adaptador.completar('tutor', 'sistema', 'hola', {'type': 'object'}), {'ok': True})
+        argumentos = cliente.chat.completions.create.call_args.kwargs
+        self.assertEqual(argumentos['model'], 'modelo-b')
+        self.assertEqual(argumentos['response_format']['type'], 'json_schema')
+        self.assertTrue(argumentos['extra_body']['provider']['require_parameters'])
+
+    def test_pdf_se_manda_como_texto(self):
+        adaptador, cliente = self.adaptador(respuesta_openrouter('{}'))
+        adaptador.completar('programa', 'sistema', 'Extraé', {}, documento_pdf=pdf_de_ejemplo())
+        mensaje = cliente.chat.completions.create.call_args.kwargs['messages'][1]['content']
+        self.assertIn('Derecho constitucional', mensaje)
+
+    def test_json_entre_backticks(self):
+        adaptador, _ = self.adaptador(respuesta_openrouter('```json\n{"ok": 1}\n```'))
+        self.assertEqual(adaptador.completar('tutor', 's', 'm', {}), {'ok': 1})
+
+    def test_respuesta_cortada_es_error(self):
+        adaptador, _ = self.adaptador(respuesta_openrouter('{"ok"', finish_reason='length'))
+        with self.assertRaises(ErrorIA):
+            adaptador.completar('tutor', 's', 'm', {})
+
+    def test_error_del_sdk_se_traduce(self):
+        cliente = Mock()
+        cliente.chat.completions.create.side_effect = openai.OpenAIError('sin servicio')
+        with self.assertRaises(ErrorIA):
+            OpenRouterAdapter(modelos=self.MODELOS, cliente=cliente).completar('tutor', 's', 'm', {})
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_sin_clave_es_error(self):
+        with self.assertRaises(ErrorIA):
+            OpenRouterAdapter().completar('tutor', 's', 'm', {})
+
+    def test_pdf_sin_texto_es_error(self):
+        with self.assertRaises(ErrorIA):
+            texto_del_pdf(b'esto no es un pdf')
+
+
+class CrearProveedorTests(TestCase):
+    @override_settings(IA_PROVEEDOR='openrouter')
+    def test_usa_el_de_la_configuracion(self):
+        self.assertIsInstance(crear_proveedor(), OpenRouterAdapter)
+        self.assertIsInstance(AsistenteIA().proveedor, OpenRouterAdapter)
+
+    def test_por_nombre(self):
+        self.assertIsInstance(crear_proveedor('anthropic'), AnthropicAdapter)
+        self.assertIsInstance(crear_proveedor('falso'), ProveedorFalso)
+
+    def test_nombre_desconocido(self):
+        with self.assertRaises(ImproperlyConfigured):
+            crear_proveedor('otro')
+

@@ -1,19 +1,24 @@
 """Prueba los tres métodos de AsistenteIA desde la consola.
 
-    python manage.py demo_ia                  # Anthropic si hay ANTHROPIC_API_KEY
-    python manage.py demo_ia --falso          # sin conexión
+    python manage.py demo_ia                          # proveedor de IA_PROVEEDOR
+    python manage.py demo_ia --proveedor anthropic    # otro proveedor
+    python manage.py demo_ia --falso                  # sin conexión
     python manage.py demo_ia --pdf programa.pdf
+
+Si el proveedor elegido no tiene su clave configurada, usa el falso y avisa.
 
 Si la base no tiene un alumno con material publicado, crea datos de ejemplo
 dentro de una transacción que se deshace al final: la base queda como estaba.
 """
+import os
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from aula.models import Carrera, Catedra, Contenido, Materia, Unidad, Usuario
-from aula.services.ia_facade import AsistenteIA, ErrorIA, ProveedorFalso, proveedor_por_defecto
+from aula.services.ia_facade import AsistenteIA, ErrorIA
+from aula.services.ia_proveedores import PROVEEDORES, ProveedorFalso, crear_proveedor
 
 LINEAS_PROGRAMA = [
     'Programa: Legislacion - TUP 2026',
@@ -107,14 +112,15 @@ class Command(BaseCommand):
     help = 'Ejecuta los tres métodos de AsistenteIA e imprime los resultados.'
 
     def add_arguments(self, parser):
+        parser.add_argument('--proveedor', choices=PROVEEDORES, help='Pisa IA_PROVEEDOR.')
         parser.add_argument('--falso', action='store_true', help='Usar el proveedor falso, sin red.')
         parser.add_argument('--pdf', help='Ruta de un programa en PDF para importar_programa.')
 
-    def handle(self, *args, falso, pdf, **opciones):
+    def handle(self, *args, proveedor, falso, pdf, **opciones):
         pdf_bytes = Path(pdf).read_bytes() if pdf else pdf_de_ejemplo()
         with transaction.atomic():
             alumno = buscar_alumno_con_material() or crear_datos_de_ejemplo()
-            proveedor = ProveedorFalso() if falso else proveedor_por_defecto()
+            proveedor = self._proveedor('falso' if falso else proveedor)
             if isinstance(proveedor, ProveedorFalso):
                 proveedor.respuestas['tutor'] = self._tutor_falso(alumno)
             self.stdout.write(f'Proveedor: {type(proveedor).__name__}\n')
@@ -151,6 +157,15 @@ class Command(BaseCommand):
         self.stdout.write(f'  Respuesta: {respuesta.texto}')
         for referencia in respuesta.referencias:
             self.stdout.write(f'  -> Contenido {referencia.contenido_id}: {referencia.titulo}')
+
+    def _proveedor(self, nombre):
+        proveedor = crear_proveedor(nombre)
+        if proveedor.variable_clave and not os.environ.get(proveedor.variable_clave):
+            self.stdout.write(self.style.WARNING(
+                f'Falta {proveedor.variable_clave}: uso el proveedor falso.'
+            ))
+            return ProveedorFalso()
+        return proveedor
 
     def _titulo(self, texto):
         self.stdout.write(self.style.MIGRATE_HEADING(f'\n{texto}'))
