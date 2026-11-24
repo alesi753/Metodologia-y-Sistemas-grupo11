@@ -1,0 +1,75 @@
+@startuml alumno
+' Diagrama de casos de uso: perspectiva del Alumno.
+' Precondición de todos los casos: sesión iniciada con el grupo "alumno".
+' Render: java -jar plantuml.jar -tsvg docs/casos-de-uso/alumno.puml
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Sans
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #555555
+}
+skinparam rectangle {
+  BorderColor #888888
+}
+
+actor "Alumno" as alumno
+
+rectangle "Aula Virtual" {
+  rectangle "Seguimiento de la cursada" {
+    usecase "CU-01\nConsultar hub de cursadas" as UC01
+    usecase "CU-02\nConsultar curso" as UC02
+    usecase "CU-03\nLeer avisos de la cátedra" as UC03
+    usecase "CU-04\nConsultar calendario" as UC04
+    usecase "Filtrar por clases\no por deadlines" as UC04a
+  }
+
+  rectangle "Clase" {
+    usecase "CU-05\nConsultar clase del día" as UC05
+    usecase "Adelantar una\nclase habilitada" as UC05a
+    usecase "CU-06\nUnirse a la clase en vivo" as UC06
+    usecase "Registrar asistencia" as UC06a
+  }
+
+  rectangle "Estudio" {
+    usecase "CU-07\nRealizar contenido" as UC07
+    usecase "Leer material" as UC07a
+    usecase "Resolver cuestionario" as UC07c
+    usecase "Entregar práctica" as UC07d
+    usecase "Verificar desbloqueo\nde la unidad" as UC07x
+    usecase "Registrar progreso" as UC07y
+  }
+
+  rectangle "Tutor" {
+    usecase "CU-08\nConsultar al tutor IA" as UC08
+    usecase "Armar contexto\nde la pantalla" as UC08a
+  }
+}
+
+actor "Tutor IA\n(Claude)" as ia <<sistema>>
+actor "Videollamada\n(Meet / Zoom / YouTube)" as video <<sistema>>
+
+alumno -- UC01
+alumno -- UC02
+alumno -- UC03
+alumno -- UC04
+alumno -- UC05
+alumno -- UC06
+alumno -- UC07
+alumno -- UC08
+
+UC04a .> UC04 : <<extend>>
+UC05a .> UC05 : <<extend>>
+UC06 ..> UC06a : <<include>>
+
+UC07 <|-- UC07a
+UC07 <|-- UC07c
+UC07 <|-- UC07d
+UC07 ..> UC07x : <<include>>
+UC07 ..> UC07y : <<include>>
+
+UC08 ..> UC08a : <<include>>
+
+UC06 -- video
+UC08 -- ia
+@enduml
