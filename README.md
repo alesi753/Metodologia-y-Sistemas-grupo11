@@ -36,15 +36,25 @@ Aula virtual donde cada cursada es un recorrido de unidades secuenciales. El alu
 python -m venv .venv
 source .venv/bin/activate        # en fish: source .venv/bin/activate.fish
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=tu-clave
+export OPENROUTER_API_KEY=tu-clave   # o IA_PROVEEDOR=anthropic + ANTHROPIC_API_KEY
 python manage.py migrate
 python manage.py cargar_demo     # opcional: cursada de ejemplo; al final muestra usuarios y URLs
 python manage.py createsuperuser
 python manage.py runserver
 ```
 
-El modelo de Claude se puede cambiar con la variable `IA_MODELO` (por defecto `claude-sonnet-5-5`). Genera material con esfuerzo medio y responde al tutor con esfuerzo bajo (`IA_ESFUERZO` en `config/settings.py`).
+### IA
+
+El servicio de IA se elige con la variable `IA_PROVEEDOR`:
+
+| Valor | Clave | Para qué |
+|---|---|---|
+| `openrouter` (por defecto) | `OPENROUTER_API_KEY` (gratis en openrouter.ai) | Desarrollo y demos con modelos gratuitos. Modelo en `IA_OPENROUTER_MODELO`. |
+| `anthropic` | `ANTHROPIC_API_KEY` (cuenta de API, no sirve un plan Pro) | Instalación con cuenta propia. Modelo en `IA_ANTHROPIC_MODELO` (por defecto `claude-sonnet-5-5`). |
+| `falso` | — | Respuestas fijas sin conexión. |
+
+El detalle de modelos y esfuerzo por tarea está en `config/settings.py`.
 
 Tests: `python manage.py test`
 
-Demo de la IA: `python manage.py demo_ia` prueba importar un programa, generar contenido y consultar al tutor. Sin `ANTHROPIC_API_KEY`, o con `--falso`, usa respuestas fijas sin conexión. Con `--pdf ruta` importa un programa propio.
+Demo de la IA: `python manage.py demo_ia` prueba importar un programa, generar contenido y consultar al tutor. Usa el proveedor de `IA_PROVEEDOR` (o `--proveedor`); si falta su clave, o con `--falso`, usa respuestas fijas sin conexión. Con `--pdf ruta` importa un programa propio.
