@@ -2,14 +2,19 @@
 # `python manage.py test` crea una base de datos temporal aparte (test_...) y la
 # destruye al terminar, así que nunca tocan db.sqlite3 ni datos reales.
 from datetime import time, timedelta
+from io import StringIO
 
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.core.management import CommandError, call_command
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from .management import datos_demo
 from .models import (
-    Alumno, Carrera, Catedra, Contenido, Horario, Materia, Progreso, Unidad, Usuario,
+    Alumno, Asistencia, Aviso, Carrera, Catedra, Clase, Contenido, Evento, Horario, Materia,
+    Progreso, Unidad, Usuario,
 )
 
 
@@ -108,3 +113,63 @@ class RoadmapTests(TestCase):
         respuesta = self.client.get(reverse('roadmap', args=[self.catedra.id]))
         self.assertContains(respuesta, 'Teoría')
         self.assertNotContains(respuesta, 'Personas')
+
+
+# El runner de tests fuerza DEBUG=False y el comando solo corre con DEBUG.
+# MD5 acelera los tests: el comando crea varios usuarios con contraseña.
+@override_settings(DEBUG=True, PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
+class CargarDemoTests(TestCase):
+    MODELOS = [
+        Usuario, Carrera, Materia, Catedra, Horario, Unidad, Contenido, Progreso, Clase,
+        Asistencia, Evento, Aviso,
+    ]
+
+    def cargar(self, *opciones):
+        call_command('cargar_demo', *opciones, stdout=StringIO())
+
+    def contar(self):
+        return {modelo.__name__: modelo.objects.count() for modelo in self.MODELOS}
+
+    def test_los_grupos_de_rol_existen(self):
+        self.assertEqual(Group.objects.filter(name__in=['alumno', 'profesor']).count(), 2)
+
+    def test_carga_alumnos_y_profesores_con_su_rol(self):
+        self.cargar()
+        self.assertTrue(Alumno.objects.filter(username=datos_demo.ALUMNO_DEMO).exists())
+        self.assertEqual(Usuario.objects.filter(groups__name='profesor').count(), len(datos_demo.PROFESORES))
+        self.assertEqual(Catedra.objects.filter(alumnos__username=datos_demo.ALUMNO_DEMO).count(), 4)
+
+    def test_es_idempotente(self):
+        self.cargar()
+        antes = self.contar()
+        self.cargar()
+        self.assertEqual(self.contar(), antes)
+
+    def test_reset_vuelve_a_cargar(self):
+        self.cargar()
+        antes = self.contar()
+        Aviso.objects.all().delete()
+        self.cargar('--reset')
+        self.assertEqual(self.contar(), antes)
+
+    def test_sin_debug_falla(self):
+        with self.settings(DEBUG=False), self.assertRaises(CommandError):
+            self.cargar()
+        self.assertFalse(Usuario.objects.exists())
+
+    def test_entregas_en_termino_y_fuera_de_termino(self):
+        self.cargar()
+        practicas = Progreso.objects.filter(
+            alumno__username=datos_demo.ALUMNO_DEMO, contenido__formato='practica',
+        )
+        self.assertEqual({p.en_termino() for p in practicas}, {True, False})
+
+    def test_el_alumno_demo_ve_su_roadmap(self):
+        self.cargar()
+        alumno = Usuario.objects.get(username=datos_demo.ALUMNO_DEMO)
+        catedra = alumno.cursadas.get(materia__nombre='Gestión de Desarrollo de Software')
+        self.client.force_login(alumno)
+        respuesta = self.client.get(reverse('roadmap', args=[catedra.id]))
+        self.assertContains(respuesta, 'Plan de proyecto')
+        estados = [item['estado'] for item in respuesta.context['unidades']]
+        self.assertEqual(estados, ['completa', 'en curso', 'bloqueada', 'en curso'])

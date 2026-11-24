@@ -19,8 +19,8 @@ Las ramas en **negrita** bloquean a las que vienen después. El resto se puede t
 - [x] `docs/adr-actualizacion`: decisiones de diseño al día, README y este plan.
 
 ### infraestructura/
-- [ ] **`infraestructura/schema-alumno`**: modelos nuevos (horarios, clases, asistencia, eventos, avisos, fe de erratas) y su carga desde el admin.
-- [ ] `infraestructura/datos-demo`: grupos alumno y profesor, comando para cargar datos de ejemplo y archivos subidos en desarrollo. *Después de `schema-alumno`.*
+- [x] **`infraestructura/schema-alumno`**: modelos nuevos (horarios, clases, asistencia, eventos, avisos, fe de erratas) y su carga desde el admin.
+- [x] `infraestructura/datos-demo`: grupos alumno y profesor, comando para cargar datos de ejemplo y archivos subidos en desarrollo. *Después de `schema-alumno`.*
 
 ### backend/
 - [ ] `backend/rol-requerido`: Decorator para restringir vistas por rol. *Después de `schema-alumno`.*
