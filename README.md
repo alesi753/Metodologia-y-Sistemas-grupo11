@@ -43,4 +43,8 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+El modelo de Claude se puede cambiar con la variable `IA_MODELO` (por defecto `claude-opus-5-5`).
+
 Tests: `python manage.py test`
+
+Demo de la IA: `python manage.py demo_ia` prueba importar un programa, generar contenido y consultar al tutor. Sin `ANTHROPIC_API_KEY`, o con `--falso`, usa respuestas fijas sin conexión. Con `--pdf ruta` importa un programa propio.

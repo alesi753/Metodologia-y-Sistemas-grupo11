@@ -10,8 +10,8 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 | Patrón | Tipo | Estado | Dónde | Rama |
 |---|---|---|---|---|
-| Facade | Estructural | Planificado | `aula/services/ia_facade.py` | `backend/ia-facade` |
-| Adapter | Estructural | Planificado | `aula/services/ia_facade.py` | `backend/ia-facade` |
+| Facade | Estructural | Aplicado | `aula/services/ia_facade.py` | `backend/ia-facade` |
+| Adapter | Estructural | Aplicado | `aula/services/ia_facade.py` | `backend/ia-facade` |
 | Decorator | Estructural | Planificado | `aula/decorators.py` | `backend/rol-requerido` |
 | Strategy | Comportamiento | Planificado | `aula/formatos.py` | `backend/formatos-contenido` |
 | Observer | Comportamiento | Planificado | `aula/signals.py` | `backend/observer` |
@@ -24,16 +24,17 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 ### 1.1. Facade
 
-- **Estado:** planificado.
+- **Estado:** aplicado en `AsistenteIA` (`aula/services/ia_facade.py`).
 - **Problema:** la IA se usa en dos lugares muy distintos. Para el profesorado genera contenido a partir del programa de la materia; para el alumno funciona como tutor. En los dos casos hay que armar el pedido, llamar a la API y manejar errores. Si eso queda en las vistas, cada vista termina sabiendo cómo funciona la IA.
-- **Decisión:** una sola clase, `AsistenteIA`, con un método por cada cosa que el producto necesita: importar el programa, generar un contenido y responder una consulta del tutor. Las vistas solo llaman a esos métodos.
+- **Decisión:** una sola clase, `AsistenteIA`, con un método por cada cosa que el producto necesita: importar el programa (`importar_programa`), generar un contenido (`generar_contenido`) y responder una consulta del tutor (`consultar_tutor`). Las vistas solo llaman a esos métodos. La fachada no guarda nada: devuelve borradores, valida que la respuesta tenga la forma esperada y descarta referencias del tutor a contenido que el alumno no puede ver.
 - **Beneficio:** si cambia cómo le pedimos las cosas a la IA, se toca un solo archivo.
 
 ### 1.2. Adapter
 
-- **Estado:** planificado.
+- **Estado:** aplicado. La interfaz es `ProveedorIA`; `AnthropicAdapter` la implementa con el SDK.
 - **Problema:** el SDK de Anthropic tiene sus propios tipos de respuesta y de error. No queremos que se filtren al resto del sistema ni depender de la API para correr los tests.
-- **Decisión:** un adaptador traduce lo que devuelve el SDK a tipos nuestros. La fachada trabaja contra esa interfaz, así que en los tests se usa un proveedor falso.
+- **Decisión:** un adaptador traduce lo que devuelve el SDK a tipos nuestros. La fachada trabaja contra esa interfaz, así que en los tests se usa un proveedor falso. Cualquier error del SDK o JSON inválido sale como `ErrorIA`, el único error de IA que conoce el resto del sistema.
+- **Proveedor falso:** `ProveedorFalso` devuelve respuestas fijas sin conexión. Lo usan los tests y `python manage.py demo_ia` cuando no hay `ANTHROPIC_API_KEY`.
 - **Beneficio:** cambiar de proveedor de IA, o probar sin conexión, no afecta al resto del código.
 
 ### 1.3. Decorator
