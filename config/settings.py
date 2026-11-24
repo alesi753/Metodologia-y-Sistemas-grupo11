@@ -128,6 +128,28 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
+# IA (aula/services/ia_proveedores.py). Servicio que usa AsistenteIA:
+# 'openrouter' (desarrollo, modelos gratis), 'anthropic' (instalación con cuenta
+# de API propia) o 'falso' (sin conexión, respuestas fijas).
+IA_PROVEEDOR = os.environ.get('IA_PROVEEDOR', 'openrouter')
+
+# OpenRouter: clave en OPENROUTER_API_KEY. Por defecto 'openrouter/free', que
+# elige entre los modelos gratuitos disponibles y no se rompe cuando uno deja de
+# serlo. Con saldo cargado se recomienda 'deepseek/deepseek-v4.1-flash': mejor
+# calidad y unos US$ 0,0004 por consulta al tutor.
+IA_OPENROUTER_MODELO = os.environ.get('IA_OPENROUTER_MODELO', 'openrouter/free')
+IA_OPENROUTER_MODELOS = {
+    'programa': IA_OPENROUTER_MODELO,
+    'contenido': IA_OPENROUTER_MODELO,
+    'tutor': IA_OPENROUTER_MODELO,
+}
+
+# Anthropic: clave en ANTHROPIC_API_KEY. Esfuerzo medio para generar material
+# y bajo para el tutor, que recibe muchas consultas cortas.
+IA_ANTHROPIC_MODELO = os.environ.get('IA_ANTHROPIC_MODELO', 'claude-sonnet-5-5')
+IA_ANTHROPIC_ESFUERZO = {'programa': 'medium', 'contenido': 'medium', 'tutor': 'low'}
+
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

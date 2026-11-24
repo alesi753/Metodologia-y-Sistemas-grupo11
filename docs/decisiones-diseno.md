@@ -10,13 +10,14 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 | Patrón | Tipo | Estado | Dónde | Rama |
 |---|---|---|---|---|
-| Facade | Estructural | Planificado | `aula/services/ia_facade.py` | `backend/ia-facade` |
-| Adapter | Estructural | Planificado | `aula/services/ia_facade.py` | `backend/ia-facade` |
+| Facade | Estructural | Aplicado | `aula/services/ia_facade.py` | `backend/ia-facade` |
+| Adapter | Estructural | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
 | Decorator | Estructural | Planificado | `aula/decorators.py` | `backend/rol-requerido` |
 | Strategy | Comportamiento | Planificado | `aula/formatos.py` | `backend/formatos-contenido` |
 | Observer | Comportamiento | Planificado | `aula/signals.py` | `backend/observer` |
 | Command | Comportamiento | Descartado | — | — |
-| Factory, Builder, Singleton | Creacionales | Descartados | — | — |
+| Factory (simple) | Creacional | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
+| Builder, Singleton | Creacionales | Descartados | — | — |
 
 ---
 
@@ -24,17 +25,22 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 ### 1.1. Facade
 
-- **Estado:** planificado.
+- **Estado:** aplicado en `AsistenteIA` (`aula/services/ia_facade.py`).
 - **Problema:** la IA se usa en dos lugares muy distintos. Para el profesorado genera contenido a partir del programa de la materia; para el alumno funciona como tutor. En los dos casos hay que armar el pedido, llamar a la API y manejar errores. Si eso queda en las vistas, cada vista termina sabiendo cómo funciona la IA.
-- **Decisión:** una sola clase, `AsistenteIA`, con un método por cada cosa que el producto necesita: importar el programa, generar un contenido y responder una consulta del tutor. Las vistas solo llaman a esos métodos.
+- **Decisión:** una sola clase, `AsistenteIA`, con un método por cada cosa que el producto necesita: importar el programa (`importar_programa`), generar un contenido (`generar_contenido`) y responder una consulta del tutor (`consultar_tutor`). Las vistas solo llaman a esos métodos. La fachada no guarda nada: devuelve borradores, valida que la respuesta tenga la forma esperada y descarta referencias del tutor a contenido que el alumno no puede ver.
 - **Beneficio:** si cambia cómo le pedimos las cosas a la IA, se toca un solo archivo.
 
 ### 1.2. Adapter
 
-- **Estado:** planificado.
-- **Problema:** el SDK de Anthropic tiene sus propios tipos de respuesta y de error. No queremos que se filtren al resto del sistema ni depender de la API para correr los tests.
-- **Decisión:** un adaptador traduce lo que devuelve el SDK a tipos nuestros. La fachada trabaja contra esa interfaz, así que en los tests se usa un proveedor falso.
-- **Beneficio:** cambiar de proveedor de IA, o probar sin conexión, no afecta al resto del código.
+- **Estado:** aplicado. La interfaz es `ProveedorIA` y hay tres adaptadores en `aula/services/ia_proveedores.py`.
+- **Problema:** cada servicio de IA tiene su propio SDK, con sus tipos de respuesta, sus errores y sus parámetros. Además, no todos aceptan lo mismo: Claude lee un PDF entero, mientras que los modelos gratuitos de OpenRouter solo reciben texto. No queremos que nada de eso se filtre al resto del sistema.
+- **Decisión:** la fachada pide siempre lo mismo (una tarea, instrucciones, un mensaje, la forma del JSON esperado y, si hace falta, un PDF) y cada adaptador lo traduce a su servicio:
+  - `AnthropicAdapter`: Claude con el SDK de Anthropic. Manda el PDF tal cual y ajusta cuánto razona el modelo según la tarea.
+  - `OpenRouterAdapter`: modelos de OpenRouter con el SDK de OpenAI, que es compatible. Extrae el texto del PDF antes de mandarlo y elige el modelo según la tarea.
+  - `ProveedorFalso`: respuestas fijas sin conexión, para tests y demos.
+
+  Cualquier error del servicio, JSON inválido o respuesta cortada sale como `ErrorIA`, el único error de IA que conoce el resto del sistema.
+- **Beneficio:** sumar o cambiar de servicio de IA no toca la fachada ni las vistas, y los tests corren sin red.
 
 ### 1.3. Decorator
 
@@ -70,9 +76,17 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 ## 3. Patrones creacionales
 
-- **Estado:** descartados.
+### 3.1. Factory (simple)
+
+- **Estado:** aplicado en `crear_proveedor` (`aula/services/ia_proveedores.py`).
+- **Problema:** qué servicio de IA usar depende de dónde se instala el sistema: el grupo desarrolla con modelos gratuitos y una institución usaría su propia cuenta. Si cada parte del código eligiera la clase a mano, cambiar de servicio obligaría a tocar varios archivos.
+- **Decisión:** una función lee `IA_PROVEEDOR` (`openrouter`, `anthropic` o `falso`) y devuelve el adaptador que corresponde, a partir de un registro de nombre → clase. `AsistenteIA` la usa cuando no le pasan un proveedor.
+- **Beneficio:** cambiar de servicio es cambiar una variable de entorno, y sumar uno nuevo es escribir su adaptador y agregar una línea al registro.
+
+### 3.2. Descartados
+
 - **Motivo general:** el ORM de Django ya centraliza la creación y la persistencia de las entidades. Crear objetos directamente es simple y suficiente.
-- **Factory:** `Contenido` es un solo modelo con un campo `formato`. No hay subclases entre las que elegir; la variación por formato la resuelve Strategy.
+- **Factory para contenidos:** `Contenido` es un solo modelo con un campo `formato`. No hay subclases entre las que elegir; la variación por formato la resuelve Strategy.
 - **Builder:** ninguna entidad se arma en varios pasos complejos.
 - **Singleton:** Django ya maneja los recursos globales, como la conexión a la base. Hacerlo a mano agrega estado oculto y complica los tests.
 
@@ -94,3 +108,7 @@ Afectan el diseño, así que quedan registradas acá. El detalle está en los [c
 2. **Alcance del tutor.** Explica el tema en general y enlaza el material donde se estudia. No resuelve cuestionarios ni prácticas.
 3. **Fe de erratas.** Si la cátedra corrige contenido de una unidad que el alumno ya completó, la corrección va a una unidad aparte que no bloquea el recorrido.
 4. **Tres formatos de contenido:** texto, cuestionario y práctica. Las flashcards se descartaron porque aportaban poco frente a los otros dos.
+5. **Proveedor de IA.** El sistema no depende de un servicio de IA en particular:
+   - **Desarrollo y demos:** OpenRouter con modelos gratuitos (`openrouter/free`, que elige entre los disponibles). Tienen límites de uso bajos (del orden de 50 pedidos por día por cuenta) y algunos pueden guardar los pedidos. Con poco saldo cargado, DeepSeek V4.1 Flash da mejor calidad a un costo muy bajo.
+   - **Instalación real:** el servicio lo define la institución que la instala, con su propia cuenta de API, por ejemplo Anthropic. Así las consultas de los alumnos no pasan por modelos gratuitos.
+   - **Suscripciones personales:** planes como Claude Pro no sirven para esto, porque no incluyen acceso a la API.
