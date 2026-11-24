@@ -19,7 +19,11 @@ from django.conf import settings
 
 from aula.models import Contenido
 
-MODELO_POR_DEFECTO = 'claude-opus-5-5'
+MODELO_POR_DEFECTO = 'claude-sonnet-5-5'
+
+# Cuánto razona el modelo en cada pedido. Generar material vale más esfuerzo;
+# las consultas del tutor son muchas y cortas, así que van con esfuerzo bajo.
+ESFUERZO_POR_TAREA = {'programa': 'medium', 'contenido': 'medium', 'tutor': 'low'}
 
 
 # --- Tipos del dominio -------------------------------------------------------
@@ -68,8 +72,8 @@ class ProveedorIA(ABC):
     def completar(self, tarea, sistema, mensaje, esquema, documento_pdf=None) -> dict:
         """Devuelve la respuesta ya parseada como dict, con la forma de `esquema`.
 
-        `tarea` identifica el pedido ('programa', 'contenido' o 'tutor'). Los
-        proveedores reales lo pueden ignorar.
+        `tarea` identifica el pedido ('programa', 'contenido' o 'tutor'). El
+        proveedor real lo usa para elegir el esfuerzo; el falso, la respuesta.
         """
 
 
@@ -79,6 +83,7 @@ class AnthropicAdapter(ProveedorIA):
     def __init__(self, modelo=None, cliente=None):
         self.modelo = modelo or getattr(settings, 'IA_MODELO', MODELO_POR_DEFECTO)
         self._cliente = cliente
+        self.esfuerzos = {**ESFUERZO_POR_TAREA, **getattr(settings, 'IA_ESFUERZO', {})}
 
     def _obtener_cliente(self):
         import anthropic
@@ -111,8 +116,11 @@ class AnthropicAdapter(ProveedorIA):
                 max_tokens=16000,
                 system=sistema,
                 messages=[{'role': 'user', 'content': contenido}],
-                # Salida estructurada: la API garantiza JSON con esta forma.
-                output_config={'format': {'type': 'json_schema', 'schema': esquema}},
+                output_config={
+                    'effort': self.esfuerzos.get(tarea, 'medium'),
+                    # Salida estructurada: la API garantiza JSON con esta forma.
+                    'format': {'type': 'json_schema', 'schema': esquema},
+                },
             )
         except anthropic.AnthropicError as error:
             raise ErrorIA(f'No se pudo consultar a la IA: {error}') from error

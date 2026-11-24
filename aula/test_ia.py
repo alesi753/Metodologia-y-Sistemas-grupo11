@@ -126,3 +126,14 @@ class AnthropicAdapterTests(TestCase):
         argumentos = cliente.messages.create.call_args.kwargs
         self.assertEqual(argumentos['model'], 'modelo-x')
         self.assertEqual(argumentos['messages'][0]['content'][0]['type'], 'document')
+        self.assertEqual(argumentos['output_config']['effort'], 'medium')
+
+    def test_tutor_usa_esfuerzo_bajo(self):
+        cliente = Mock()
+        cliente.messages.create.return_value = SimpleNamespace(
+            stop_reason='end_turn', content=[SimpleNamespace(type='text', text='{}')],
+        )
+        AnthropicAdapter(cliente=cliente).completar('tutor', 'sistema', 'hola', {})
+        argumentos = cliente.messages.create.call_args.kwargs
+        self.assertEqual(argumentos['output_config']['effort'], 'low')
+        self.assertEqual(argumentos['model'], 'claude-sonnet-5-5')

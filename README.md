@@ -43,7 +43,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-El modelo de Claude se puede cambiar con la variable `IA_MODELO` (por defecto `claude-opus-5-5`).
+El modelo de Claude se puede cambiar con la variable `IA_MODELO` (por defecto `claude-sonnet-5-5`). Genera material con esfuerzo medio y responde al tutor con esfuerzo bajo (`IA_ESFUERZO` en `config/settings.py`).
 
 Tests: `python manage.py test`
 

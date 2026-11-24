@@ -130,7 +130,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # IA: modelo de Claude que usa AsistenteIA (aula/services/ia_facade.py).
 # La clave se lee de la variable de entorno ANTHROPIC_API_KEY.
-IA_MODELO = os.environ.get('IA_MODELO', 'claude-opus-5-5')
+IA_MODELO = os.environ.get('IA_MODELO', 'claude-sonnet-5-5')
+# Esfuerzo por tarea: medio para generar material, bajo para el tutor.
+IA_ESFUERZO = {'programa': 'medium', 'contenido': 'medium', 'tutor': 'low'}
 
 
 # Email
