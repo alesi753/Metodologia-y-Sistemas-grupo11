@@ -133,9 +133,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # de API propia) o 'falso' (sin conexión, respuestas fijas).
 IA_PROVEEDOR = os.environ.get('IA_PROVEEDOR', 'openrouter')
 
-# OpenRouter: clave en OPENROUTER_API_KEY. Los modelos gratis cambian seguido;
-# los disponibles están en https://openrouter.ai/models?q=free
-IA_OPENROUTER_MODELO = os.environ.get('IA_OPENROUTER_MODELO', 'deepseek/deepseek-chat-v3-0324:free')
+# OpenRouter: clave en OPENROUTER_API_KEY. Por defecto 'openrouter/free', que
+# elige entre los modelos gratuitos disponibles y no se rompe cuando uno deja de
+# serlo. Con saldo cargado se recomienda 'deepseek/deepseek-v4.1-flash': mejor
+# calidad y unos US$ 0,0004 por consulta al tutor.
+IA_OPENROUTER_MODELO = os.environ.get('IA_OPENROUTER_MODELO', 'openrouter/free')
 IA_OPENROUTER_MODELOS = {
     'programa': IA_OPENROUTER_MODELO,
     'contenido': IA_OPENROUTER_MODELO,

@@ -49,7 +49,7 @@ El servicio de IA se elige con la variable `IA_PROVEEDOR`:
 
 | Valor | Clave | Para qué |
 |---|---|---|
-| `openrouter` (por defecto) | `OPENROUTER_API_KEY` (gratis en openrouter.ai) | Desarrollo y demos con modelos gratuitos. Modelo en `IA_OPENROUTER_MODELO`. |
+| `openrouter` (por defecto) | `OPENROUTER_API_KEY` (gratis en openrouter.ai) | Desarrollo y demos. Por defecto usa modelos gratuitos (`openrouter/free`); con saldo cargado conviene `IA_OPENROUTER_MODELO=deepseek/deepseek-v4.1-flash`. |
 | `anthropic` | `ANTHROPIC_API_KEY` (cuenta de API, no sirve un plan Pro) | Instalación con cuenta propia. Modelo en `IA_ANTHROPIC_MODELO` (por defecto `claude-sonnet-5-5`). |
 | `falso` | — | Respuestas fijas sin conexión. |
 

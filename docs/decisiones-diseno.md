@@ -109,6 +109,6 @@ Afectan el diseño, así que quedan registradas acá. El detalle está en los [c
 3. **Fe de erratas.** Si la cátedra corrige contenido de una unidad que el alumno ya completó, la corrección va a una unidad aparte que no bloquea el recorrido.
 4. **Tres formatos de contenido:** texto, cuestionario y práctica. Las flashcards se descartaron porque aportaban poco frente a los otros dos.
 5. **Proveedor de IA.** El sistema no depende de un servicio de IA en particular:
-   - **Desarrollo y demos:** OpenRouter con modelos gratuitos. Tienen límites de uso bajos (del orden de 50 pedidos por día por cuenta) y algunos pueden guardar los pedidos.
+   - **Desarrollo y demos:** OpenRouter con modelos gratuitos (`openrouter/free`, que elige entre los disponibles). Tienen límites de uso bajos (del orden de 50 pedidos por día por cuenta) y algunos pueden guardar los pedidos. Con poco saldo cargado, DeepSeek V4.1 Flash da mejor calidad a un costo muy bajo.
    - **Instalación real:** el servicio lo define la institución que la instala, con su propia cuenta de API, por ejemplo Anthropic. Así las consultas de los alumnos no pasan por modelos gratuitos.
    - **Suscripciones personales:** planes como Claude Pro no sirven para esto, porque no incluyen acceso a la API.
