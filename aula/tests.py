@@ -1,14 +1,16 @@
 # Tests automáticos del aula: verifican reglas de dominio y vistas.
 # `python manage.py test` crea una base de datos temporal aparte (test_...) y la
 # destruye al terminar, así que nunca tocan db.sqlite3 ni datos reales.
-from datetime import timedelta
+from datetime import time, timedelta
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Carrera, Catedra, Contenido, Materia, Progreso, Unidad, Usuario
+from .models import (
+    Alumno, Carrera, Catedra, Contenido, Horario, Materia, Progreso, Unidad, Usuario,
+)
 
 
 class RoadmapTests(TestCase):
@@ -58,6 +60,39 @@ class RoadmapTests(TestCase):
         self.u1.fecha_limite = self.hoy - timedelta(days=1)
         self.u1.save()
         self.assertFalse(self.completar(self.texto).en_termino())
+
+    def crear_fe_de_erratas(self, orden=3):
+        errata = Unidad.objects.create(
+            catedra=self.catedra, orden=orden, titulo='Fe de erratas', es_fe_de_erratas=True,
+        )
+        errata.corrige.add(self.u1)
+        Contenido.objects.create(unidad=errata, formato='texto', titulo='Corrección', publicado=True)
+        return errata
+
+    def test_fe_de_erratas_no_bloquea_la_secuencia(self):
+        self.crear_fe_de_erratas(orden=3)
+        u4 = Unidad.objects.create(catedra=self.catedra, orden=4, titulo='Penal')
+        self.completar(self.texto)
+        self.completar(self.u2.contenidos.get())
+        self.assertTrue(u4.esta_desbloqueada(self.alumno))
+
+    def test_fe_de_erratas_se_abre_al_completar_lo_que_corrige(self):
+        errata = self.crear_fe_de_erratas()
+        self.assertFalse(errata.esta_desbloqueada(self.alumno))
+        self.completar(self.texto)
+        self.assertTrue(errata.esta_desbloqueada(self.alumno))
+
+    def test_unidad_actual_ignora_fe_de_erratas(self):
+        self.crear_fe_de_erratas(orden=3)
+        alumno = Alumno._base_manager.get(pk=self.alumno.pk)
+        self.completar(self.texto)
+        self.completar(self.u2.contenidos.get())
+        self.assertIsNone(alumno.unidad_actual(self.catedra))
+
+    def test_horario_inicio_posterior_al_fin_es_invalido(self):
+        horario = Horario(catedra=self.catedra, dia=0, hora_inicio=time(20), hora_fin=time(18))
+        with self.assertRaises(ValidationError):
+            horario.clean()
 
     def test_roadmap_requiere_login(self):
         respuesta = self.client.get(reverse('roadmap', args=[self.catedra.id]))

@@ -16,7 +16,7 @@ Las ramas en **negrita** bloquean a las que vienen después. El resto se puede t
 
 ### docs/
 - [x] `docs/casos-de-uso-alumno`: diagrama y especificación del alumno.
-- [ ] `docs/adr-actualizacion`: decisiones de diseño al día, README y este plan.
+- [x] `docs/adr-actualizacion`: decisiones de diseño al día, README y este plan.
 
 ### infraestructura/
 - [ ] **`infraestructura/schema-alumno`**: modelos nuevos (horarios, clases, asistencia, eventos, avisos, fe de erratas) y su carga desde el admin.

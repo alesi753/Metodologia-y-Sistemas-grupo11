@@ -2,7 +2,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Carrera, Catedra, Contenido, Materia, Progreso, Unidad, Usuario
+from .models import (
+    Asistencia, Aviso, Carrera, Catedra, Clase, Contenido, Evento, Horario, Materia, Progreso,
+    Unidad, Usuario,
+)
 
 
 @admin.register(Usuario)
@@ -30,13 +33,18 @@ class UnidadInline(admin.TabularInline):
     show_change_link = True
 
 
+class HorarioInline(admin.TabularInline):
+    model = Horario
+    extra = 0
+
+
 @admin.register(Catedra)
 class CatedraAdmin(admin.ModelAdmin):
     list_display = ['materia', 'anio', 'cuatrimestre']
     list_filter = ['materia__carrera', 'anio', 'cuatrimestre']
     search_fields = ['materia__nombre']
     filter_horizontal = ['profesores', 'alumnos']
-    inlines = [UnidadInline]
+    inlines = [HorarioInline, UnidadInline]
 
 
 class ContenidoInline(admin.TabularInline):
@@ -48,8 +56,9 @@ class ContenidoInline(admin.TabularInline):
 
 @admin.register(Unidad)
 class UnidadAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'catedra', 'fecha_apertura', 'fecha_limite']
-    list_filter = ['catedra__materia']
+    list_display = ['__str__', 'catedra', 'fecha_apertura', 'fecha_limite', 'es_fe_de_erratas']
+    list_filter = ['catedra__materia', 'es_fe_de_erratas']
+    filter_horizontal = ['corrige']
     inlines = [ContenidoInline]
 
 
@@ -64,3 +73,29 @@ class ContenidoAdmin(admin.ModelAdmin):
 class ProgresoAdmin(admin.ModelAdmin):
     list_display = ['alumno', 'contenido', 'completado_en', 'intentos']
     list_filter = ['contenido__unidad__catedra__materia', 'contenido__formato']
+
+
+@admin.register(Clase)
+class ClaseAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'fecha', 'hora_inicio', 'unidad']
+    list_filter = ['catedra__materia']
+    filter_horizontal = ['contenidos']
+
+
+@admin.register(Asistencia)
+class AsistenciaAdmin(admin.ModelAdmin):
+    list_display = ['alumno', 'clase', 'registrada_en']
+    list_filter = ['clase__catedra__materia']
+
+
+@admin.register(Evento)
+class EventoAdmin(admin.ModelAdmin):
+    list_display = ['titulo', 'tipo', 'fecha', 'catedra']
+    list_filter = ['tipo', 'catedra__materia']
+
+
+@admin.register(Aviso)
+class AvisoAdmin(admin.ModelAdmin):
+    list_display = ['titulo', 'catedra', 'autor', 'publicado_en']
+    list_filter = ['catedra__materia']
+    search_fields = ['titulo']
