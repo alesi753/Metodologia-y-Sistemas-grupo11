@@ -22,6 +22,7 @@ class RoadmapTests(TestCase):
     def setUp(self):
         self.hoy = timezone.localdate()
         self.alumno = Usuario.objects.create_user('1001', password='clave-segura-123')
+        self.alumno.groups.add(Group.objects.get(name='alumno'))
         materia = Materia.objects.create(nombre='Legislación', carrera=Carrera.objects.create(nombre='TUP'))
         self.catedra = Catedra.objects.create(materia=materia, anio=2026, cuatrimestre=2)
         self.catedra.alumnos.add(self.alumno)
@@ -104,9 +105,18 @@ class RoadmapTests(TestCase):
         self.assertRedirects(respuesta, f"{reverse('login')}?next=/cursada/{self.catedra.id}/")
 
     def test_roadmap_solo_para_inscriptos(self):
-        self.client.force_login(Usuario.objects.create_user('1002'))
+        otro = Usuario.objects.create_user('1002')
+        otro.groups.add(Group.objects.get(name='alumno'))
+        self.client.force_login(otro)
         respuesta = self.client.get(reverse('roadmap', args=[self.catedra.id]))
         self.assertEqual(respuesta.status_code, 404)
+
+    def test_roadmap_rechaza_otros_roles(self):
+        profe = Usuario.objects.create_user('2001')
+        profe.groups.add(Group.objects.get(name='profesor'))
+        self.client.force_login(profe)
+        respuesta = self.client.get(reverse('roadmap', args=[self.catedra.id]))
+        self.assertEqual(respuesta.status_code, 403)
 
     def test_roadmap_oculta_unidades_bloqueadas(self):
         self.client.force_login(self.alumno)
