@@ -1,12 +1,12 @@
 # Módulo de lógica: funciones que reciben requests y calculan el roadmap
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
+from .decorators import rol_requerido
 from .models import Progreso
 
 
-@login_required
+@rol_requerido('alumno', 'profesor')
 def inicio(request):
     return render(request, 'aula/inicio.html', {
         'cursadas': request.user.cursadas.select_related('materia'),
@@ -14,7 +14,7 @@ def inicio(request):
     })
 
 
-@login_required
+@rol_requerido('alumno')
 def roadmap(request, catedra_id):
     # Solo cursadas del usuario: si no está inscripto, 404.
     catedra = get_object_or_404(request.user.cursadas.select_related('materia'), pk=catedra_id)

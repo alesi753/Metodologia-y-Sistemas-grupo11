@@ -12,7 +12,7 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 |---|---|---|---|---|
 | Facade | Estructural | Aplicado | `aula/services/ia_facade.py` | `backend/ia-facade` |
 | Adapter | Estructural | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
-| Decorator | Estructural | Planificado | `aula/decorators.py` | `backend/rol-requerido` |
+| Decorator | Estructural | Aplicado | `aula/decorators.py` | `backend/rol-requerido` |
 | Strategy | Comportamiento | Planificado | `aula/formatos.py` | `backend/formatos-contenido` |
 | Observer | Comportamiento | Planificado | `aula/signals.py` | `backend/observer` |
 | Command | Comportamiento | Descartado | — | — |
@@ -44,7 +44,7 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 ### 1.3. Decorator
 
-- **Estado:** aplicado en parte. Hoy las vistas usan `@login_required`, que solo verifica que haya sesión. Falta controlar el rol.
+- **Estado:** aplicado en `aula/decorators.py`. Las vistas `inicio` (alumno y profesor) y `roadmap` (alumno) lo usan.
 - **Problema:** alumno y profesor ven pantallas distintas. Validar el rol adentro de cada vista repite código y mezcla la seguridad con la lógica de la pantalla.
 - **Decisión:** un decorador propio, `@rol_requerido('profesor')`, que envuelve la vista y corta el acceso antes de que se ejecute. Elegimos uno propio en lugar de `@user_passes_test` suelto para tener una sola regla de roles en un solo lugar.
 - **Beneficio:** cada vista queda con una única responsabilidad, y la regla de roles se cambia en un solo archivo.
