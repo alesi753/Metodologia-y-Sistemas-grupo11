@@ -24,7 +24,7 @@ Las ramas en **negrita** bloquean a las que vienen después. El resto se puede t
 
 ### backend/
 - [ ] `backend/rol-requerido`: Decorator para restringir vistas por rol. *Después de `schema-alumno`.*
-- [ ] `backend/formatos-contenido`: Strategy por formato y registro del progreso. *Después de `schema-alumno`.*
+- [x] `backend/formatos-contenido`: Strategy por formato y registro del progreso. *Después de `schema-alumno`.*
 - [ ] `backend/observer`: reacciones al completar contenido y al publicar avisos. *Después de `formatos-contenido`.*
 - [x] `backend/ia-facade`: Facade y Adapter de la IA, con un proveedor falso para tests. *Se puede empezar ya.*
 - [ ] `backend/tutor`: consulta al tutor con el contexto de la pantalla y enlaces al material. *Después de `ia-facade`.*
