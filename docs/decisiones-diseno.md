@@ -12,8 +12,8 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 |---|---|---|---|---|
 | Facade | Estructural | Aplicado | `aula/services/ia_facade.py` | `backend/ia-facade` |
 | Adapter | Estructural | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
-| Decorator | Estructural | Aplicado | `aula/decorators.py` | `backend/rol-requerido` |
-| Strategy | Comportamiento | Planificado | `aula/formatos.py` | `backend/formatos-contenido` |
+| Decorator | Estructural | Planificado | `aula/decorators.py` | `backend/rol-requerido` |
+| Strategy | Comportamiento | Aplicado | `aula/formatos.py` | `backend/formatos-contenido` |
 | Observer | Comportamiento | Planificado | `aula/signals.py` | `backend/observer` |
 | Command | Comportamiento | Descartado | — | — |
 | Factory (simple) | Creacional | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
@@ -55,7 +55,7 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 ### 2.1. Strategy
 
-- **Estado:** planificado. Antes estaba descartado porque había una sola regla; eso cambió.
+- **Estado:** aplicado en `aula/formatos.py`. Hay una estrategia por formato (`Texto`, `Cuestionario`, `Practica`) y `Contenido.estrategia` elige la que corresponde según su campo `formato`. `registrar_progreso` usa la estrategia para decidir cuándo se completa un contenido.
 - **Problema:** un contenido puede ser un texto, un cuestionario o una práctica para entregar. Cada formato se muestra distinto, guarda datos distintos y se completa por motivos distintos: el texto al marcarlo como leído, el cuestionario al aprobarlo y la práctica al entregar el archivo. Resolverlo con `if/elif` por formato lo desparrama por todo el sistema.
 - **Decisión:** una estrategia por formato que define su template, cómo valida su contenido y cuándo se considera completo. El modelo `Contenido` elige la estrategia según su campo `formato`.
 - **Beneficio:** agregar un formato nuevo es agregar una clase, sin tocar las que ya funcionan.

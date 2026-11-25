@@ -163,6 +163,13 @@ class Contenido(models.Model):
         """Texto es teoría; cuestionario y práctica son práctica."""
         return self.formato == self.Formato.TEXTO
 
+    @property
+    def estrategia(self):
+        from .formatos import ESTRATEGIAS
+        return ESTRATEGIAS[self.formato]
+
+    def clean(self):
+        self.estrategia.validar(self.cuerpo)
 
 class Progreso(models.Model):
     alumno = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='progresos')
