@@ -42,8 +42,9 @@ classDiagram
         +titulo: str
         +conceptos: JSON
         +fecha_apertura: date?
-        +fecha_limite: date
+        +fecha_limite: date?
         +es_fe_de_erratas: bool
+        +completada_por(alumno) bool
         +esta_desbloqueada(alumno) bool
     }
 
@@ -54,6 +55,7 @@ classDiagram
         +archivo: File?
         +publicado: bool
         +es_teoria() bool
+        +estrategia() formatos.Formato
     }
 
     class Formato {
@@ -97,6 +99,16 @@ classDiagram
         +fecha: date
     }
 
+    class Dia {
+        <<enumeration>>
+        LUNES
+        MARTES
+        MIERCOLES
+        JUEVES
+        VIERNES
+        SABADO
+    }
+
     class TipoEvento {
         <<enumeration>>
         ENTREGA
@@ -133,6 +145,7 @@ classDiagram
     Clase "1" -- "*" Asistencia
     Catedra "1" *-- "*" Evento
     Evento ..> TipoEvento
+    Horario ..> Dia
     Evento "*" -- "0..1" Contenido : entrega
     Catedra "1" *-- "*" Aviso
     Profesor "1" -- "*" Aviso : autor

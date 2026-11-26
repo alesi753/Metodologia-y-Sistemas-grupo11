@@ -1,6 +1,6 @@
 # Dependencias: Django y los clientes de IA (anthropic, openai para OpenRouter, pypdf)
 # Manifest
-Django>=5.0
+Django>=6.1,<6.2
 anthropic>=0.40
 openai>=1.40
 pypdf>=4.0

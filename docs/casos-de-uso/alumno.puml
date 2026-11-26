@@ -46,7 +46,7 @@ rectangle "Aula Virtual" {
   }
 }
 
-actor "Tutor IA\n(Claude)" as ia <<sistema>>
+actor "Tutor IA\n(LLM)" as ia <<sistema>>
 actor "Videollamada\n(Meet / Zoom / YouTube)" as video <<sistema>>
 
 alumno -- UC01
