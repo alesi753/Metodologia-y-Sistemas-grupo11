@@ -8,12 +8,12 @@ Precondición común: el alumno inició sesión y pertenece al grupo `alumno`.
 
 | CU | Nombre | Pantalla | Qué resuelve | Modelos que usa | Patrón |
 |---|---|---|---|---|---|
-| CU-01 | Consultar hub de cursadas | Inicio | Cursadas activas, próximas fechas y últimos avisos en una sola vista | `Catedra`, `Evento`\*, `Aviso`\*, `Progreso` | — |
-| CU-02 | Consultar curso | Curso | Ficha de la cátedra (profesorado, horarios, programa), próxima clase y el recorrido de unidades con su estado | `Catedra`, `Horario`\*, `Unidad`, `Contenido`, `Progreso` | — |
-| CU-03 | Leer avisos de la cátedra | Avisos del curso | Comunicación de la cátedra hacia los alumnos. Solo la cátedra publica | `Aviso`\* | Observer (al publicar se notifica) |
-| CU-04 | Consultar calendario | Calendario | Mes con clases recurrentes y deadlines, filtrable por tipo | `Horario`\*, `Clase`\*, `Evento`\* | — |
-| CU-05 | Consultar clase del día | Clase de hoy | La sesión de hoy (o una próxima habilitada) con temario, material y tareas | `Clase`\*, `Contenido` | — |
-| CU-06 | Unirse a la clase en vivo | Clase de hoy | Link de videollamada y registro de asistencia | `Clase`\*, `Asistencia`\* | — |
+| CU-01 | Consultar hub de cursadas | Inicio | Cursadas activas, próximas fechas y últimos avisos en una sola vista | `Catedra`, `Evento`, `Aviso`, `Progreso` | — |
+| CU-02 | Consultar curso | Curso | Ficha de la cátedra (profesorado, horarios, programa), próxima clase y el recorrido de unidades con su estado | `Catedra`, `Horario`, `Unidad`, `Contenido`, `Progreso` | — |
+| CU-03 | Leer avisos de la cátedra | Avisos del curso | Comunicación de la cátedra hacia los alumnos. Solo la cátedra publica | `Aviso` | Observer (al publicar se notifica) |
+| CU-04 | Consultar calendario | Calendario | Mes con clases recurrentes y deadlines, filtrable por tipo | `Horario`, `Clase`, `Evento` | — |
+| CU-05 | Consultar clase del día | Clase de hoy | La sesión de hoy (o una próxima habilitada) con temario, material y tareas | `Clase`, `Contenido` | — |
+| CU-06 | Unirse a la clase en vivo | Clase de hoy | Link de videollamada y registro de asistencia | `Clase`, `Asistencia` | — |
 | CU-07 | Realizar contenido | Contenido | Leer material, resolver un cuestionario o entregar una práctica | `Contenido`, `Progreso` | Strategy (un template y un criterio de completado por formato), Observer (desbloqueo) |
 | CU-08 | Consultar al tutor IA | Botón flotante en todas las pantallas | Pregunta con el contexto de la pantalla actual; la IA indica dónde está el tema en el material | `ConsultaTutor`\* (opcional) | Facade + Adapter |
 
@@ -47,21 +47,22 @@ Alternativos:
 
 ## Impacto en el esquema
 
-La vista de producto agrega conceptos que el esquema actual (`docs/schemas/schema.mmd`) no tiene:
+La vista de producto sumó estos conceptos al esquema. Están implementados en `aula/models.py` (rama `infraestructura/schema-alumno`) y dibujados en [`docs/schemas/schema.mmd`](../schemas/schema.mmd):
 
-| Concepto | Propuesta | Motivo |
+| Concepto | Modelo | Motivo |
 |---|---|---|
-| Horario de cursada | `Horario(catedra, dia_semana, hora_inicio, hora_fin, aula)` | Bloques recurrentes en el calendario y la ficha del curso |
-| Clase | `Clase(catedra, numero, fecha, hora_inicio, titulo, resumen, unidad, link_videollamada, contenidos M2M)` | La pantalla "Clase de hoy" agrupa por fecha y no por unidad |
+| Horario de cursada | `Horario(catedra, dia, hora_inicio, hora_fin)` | Bloques recurrentes en el calendario y la ficha del curso |
+| Clase | `Clase(catedra, numero, fecha, hora_inicio, hora_fin, titulo, resumen, unidad?, link_videollamada, contenidos M2M)` | La pantalla "Clase de hoy" agrupa por fecha y no por unidad |
 | Asistencia | `Asistencia(alumno, clase, registrada_en)` | Registro de asistencia desde el link en vivo |
 | Fecha importante | `Evento(catedra, tipo, titulo, fecha, contenido?)`, con tipo entrega, parcial, presentación o final | Los parciales no son contenidos de la plataforma, pero tienen que aparecer en el hub y en el calendario |
 | Aviso | `Aviso(catedra, autor, titulo, cuerpo, publicado_en)` | Foro de avisos de solo lectura para el alumno |
-| Material oficial | `archivo` en `Contenido` o un modelo `Material` | Hoy `cuerpo` es JSON y no puede guardar PDFs |
-| Teoría y práctica | Derivado del formato: el texto es teoría; el cuestionario y la práctica son práctica | Las barras de progreso por unidad salen del `Progreso` existente, sin campos nuevos |
+| Material oficial | Campo `archivo` en `Contenido` | `cuerpo` es JSON y no puede guardar PDFs |
+| Fe de erratas | Campos `es_fe_de_erratas` y `corrige` (M2M a las unidades corregidas) en `Unidad` | Corregir contenido sin volver a bloquear el recorrido |
+| Teoría y práctica | `Contenido.es_teoria`, derivado del formato: el texto es teoría; el cuestionario y la práctica son práctica | Las barras de progreso por unidad salen del `Progreso` existente, sin campos nuevos |
 
 ## Decisiones tomadas
 
 1. **Sin calificaciones.** Parciales, entregas, presentaciones y finales son `Evento` del calendario. La plataforma no califica. La carga de eventos se define en la perspectiva del profesorado.
 2. **Alcance del tutor.** Explica el tema en términos generales y enlaza el material de estudio donde se trata. No resuelve cuestionarios ni prácticas.
-3. **Fe de erratas.** Si el profesorado corrige o agrega contenido en una unidad que el alumno ya completó, ese contenido no vuelve a bloquear el recorrido. Va a una unidad especial *Fe de erratas*, fuera de la secuencia de desbloqueo, que referencia las unidades que corrige. Queda pendiente definir su modelado en el diagrama de clases.
+3. **Fe de erratas.** Si el profesorado corrige o agrega contenido en una unidad que el alumno ya completó, ese contenido no vuelve a bloquear el recorrido. Va a una unidad especial *Fe de erratas*, fuera de la secuencia de desbloqueo, que referencia las unidades que corrige (`Unidad.es_fe_de_erratas` y `Unidad.corrige`). Se abre cuando el alumno completó todas esas unidades.
 4. **Sin flashcards.** Se quitan como formato de contenido: aportan poco frente a texto y cuestionario. Quedan tres formatos: texto, cuestionario y práctica.

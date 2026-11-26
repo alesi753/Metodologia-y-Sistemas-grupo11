@@ -18,8 +18,8 @@ Aula virtual donde cada cursada es un recorrido de unidades secuenciales. El alu
 |---|---|
 | Backend | Python 3.12+, Django 6.1 |
 | Base de datos | SQLite |
-| Frontend | Templates de Django |
-| IA | Claude (SDK anthropic) |
+| Frontend | Templates de Django con Pico CSS (por CDN) |
+| IA | Proveedor configurable: OpenRouter (SDK openai) o Claude (SDK anthropic) |
 
 ## Documentación
 
