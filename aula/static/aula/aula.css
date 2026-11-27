@@ -80,3 +80,28 @@ body.con-navegacion main {
 .fechas small {
   display: block;
 }
+
+/* Ficha del curso (CU-02). */
+.ficha dl {
+  margin: 0;
+}
+
+.ficha dt {
+  font-weight: bold;
+}
+
+.ficha dd {
+  margin: 0 0 0.75rem;
+}
+
+.ultimo-aviso header,
+.unidad header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.unidad-bloqueada {
+  opacity: 0.6;
+}

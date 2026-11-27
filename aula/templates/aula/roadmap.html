@@ -8,16 +8,66 @@
   <p>{{ catedra.anio }}, {{ catedra.get_cuatrimestre_display }} cuatrimestre</p>
 </hgroup>
 
+<section class="ficha">
+  <article>
+    <dl>
+      <dt>Profesorado</dt>
+      <dd>{{ profesores|join:', '|default:'Sin asignar' }}</dd>
+
+      <dt>Horarios</dt>
+      <dd>
+        {% for horario in horarios %}{{ horario }}{% if not forloop.last %} · {% endif %}{% empty %}Sin horarios cargados{% endfor %}
+      </dd>
+
+      <dt>Próxima clase</dt>
+      <dd>
+        {% if proxima_clase %}
+          {% if proxima_clase.fecha == hoy %}Hoy{% else %}{{ proxima_clase.fecha|date:'D j/n' }}{% endif %},
+          {{ proxima_clase.hora_inicio|time:'H:i' }} a {{ proxima_clase.hora_fin|time:'H:i' }}:
+          Clase {{ proxima_clase.numero }}, {{ proxima_clase.titulo }}
+        {% else %}
+          No hay clases programadas.
+        {% endif %}
+      </dd>
+
+      {% if catedra.programa_archivo %}
+      <dt>Programa</dt>
+      <dd><a href="{{ catedra.programa_archivo.url }}">Descargar el programa</a></dd>
+      {% endif %}
+    </dl>
+  </article>
+
+  <article class="ultimo-aviso">
+    <header>
+      <strong>Avisos de la cátedra</strong>
+      <a href="{% url 'avisos' catedra.id %}">Ver todos</a>
+    </header>
+    {% if ultimo_aviso %}
+    <p><strong>{{ ultimo_aviso.titulo }}</strong> <small>{{ ultimo_aviso.publicado_en|date:'j/n H:i' }}</small></p>
+    <p>{{ ultimo_aviso.cuerpo|truncatewords:25 }}</p>
+    {% else %}
+    <p>La cátedra todavía no publicó avisos.</p>
+    {% endif %}
+  </article>
+</section>
+
+<h3>Recorrido</h3>
 {% for item in unidades %}
-<article>
+<article class="unidad unidad-{{ item.estado|slugify }}">
   <header>
     <strong>{{ item.unidad }}</strong>
-    <small>({{ item.estado }})</small>
+    <small>{{ item.estado|capfirst }}</small>
   </header>
+
+  {% if item.unidad.conceptos %}
+  <p><small>{{ item.unidad.conceptos|join:' · ' }}</small></p>
+  {% endif %}
 
   {% if item.estado == 'bloqueada' %}
     {% if item.unidad.fecha_apertura and item.unidad.fecha_apertura > hoy %}
     <p>Abre el {{ item.unidad.fecha_apertura }}.</p>
+    {% elif item.unidad.es_fe_de_erratas %}
+    <p>Se abre cuando completes las unidades que corrige.</p>
     {% else %}
     <p>Completá la unidad anterior para continuar.</p>
     {% endif %}

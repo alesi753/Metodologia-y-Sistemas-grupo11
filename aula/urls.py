@@ -8,4 +8,5 @@ from .views import cursada, inicio
 urlpatterns = [
     path('', inicio.inicio, name='inicio'),
     path('cursada/<int:catedra_id>/', cursada.roadmap, name='roadmap'),
+    path('cursada/<int:catedra_id>/avisos/', cursada.avisos, name='avisos'),
 ]
