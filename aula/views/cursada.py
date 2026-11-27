@@ -1,17 +1,9 @@
-# Módulo de lógica: funciones que reciben requests y calculan el roadmap
+# Recorrido de una cursada: estado de cada unidad para el alumno
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
-from .decorators import rol_requerido
-from .models import Progreso
-
-
-@rol_requerido('alumno', 'profesor')
-def inicio(request):
-    return render(request, 'aula/inicio.html', {
-        'cursadas': request.user.cursadas.select_related('materia'),
-        'catedras': request.user.catedras.select_related('materia'),
-    })
+from aula.decorators import rol_requerido
+from aula.models import Progreso
 
 
 @rol_requerido('alumno')

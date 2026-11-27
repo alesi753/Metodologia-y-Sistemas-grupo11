@@ -1,18 +1,20 @@
-<!doctype html>
+{% load static %}<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Aula Virtual{% endblock %}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+  <link rel="stylesheet" href="{% static 'aula/aula.css' %}">
 </head>
-<body>
+<body{% if menu %} class="con-navegacion"{% endif %}>
   <header class="container">
     <nav>
       <ul><li><a href="{% url 'inicio' %}"><strong>Aula Virtual</strong></a></li></ul>
       {% if user.is_authenticated %}
       <ul>
         <li>{{ user }}</li>
+        {% if user.is_staff %}<li><a href="{% url 'admin:index' %}">Admin</a></li>{% endif %}
         <li>
           <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
@@ -23,8 +25,24 @@
       {% endif %}
     </nav>
   </header>
+
   <main class="container">
     {% block contenido %}{% endblock %}
   </main>
+
+  {% if es_alumno %}
+  {# Lugar del tutor IA (CU-08). Lo completa la rama frontend/tutor-widget. #}
+  <aside id="tutor">{% block tutor %}{% endblock %}</aside>
+  {% endif %}
+
+  {% if menu %}
+  <nav class="navegacion-inferior" aria-label="Navegación principal">
+    <ul>
+      {% for item in menu %}
+      <li><a href="{{ item.url }}"{% if item.activo %} aria-current="page"{% endif %}>{{ item.etiqueta }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+  {% endif %}
 </body>
 </html>

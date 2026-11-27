@@ -32,7 +32,7 @@ Las ramas en **negrita** bloquean a las que vienen después. El resto se puede t
 ### frontend/
 Cada rama de pantalla incluye su vista y su template.
 
-- [ ] **`frontend/base-navegacion`**: estructura común (encabezado, navegación inferior y lugar para el tutor). *Después de `rol-requerido`.*
+- [ ] **`frontend/base-navegacion`** (Amado): estructura común (encabezado, navegación inferior y lugar para el tutor). *Después de `rol-requerido`.*
 - [ ] `frontend/hub`: inicio con cursadas, próximas fechas y avisos (CU-01). *Después de `base-navegacion`.*
 - [ ] `frontend/curso-avisos`: ficha del curso, unidades y avisos (CU-02, CU-03). *Después de `base-navegacion`.*
 - [ ] `frontend/calendario`: clases y fechas del mes con filtro (CU-04). *Después de `base-navegacion`.*

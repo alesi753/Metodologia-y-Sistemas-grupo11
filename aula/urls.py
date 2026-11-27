@@ -1,9 +1,11 @@
-# Rutas propias del aula, montadas en config/urls.py
+# Rutas propias del aula, montadas en config/urls.py.
+# Cada pantalla vive en su módulo de aula/views/. Los nombres de ruta que
+# aparecen en la navegación están en aula/context_processors.py.
 from django.urls import path
 
-from . import views
+from .views import cursada, inicio
 
 urlpatterns = [
-    path('', views.inicio, name='inicio'),
-    path('cursada/<int:catedra_id>/', views.roadmap, name='roadmap'),
+    path('', inicio.inicio, name='inicio'),
+    path('cursada/<int:catedra_id>/', cursada.roadmap, name='roadmap'),
 ]
