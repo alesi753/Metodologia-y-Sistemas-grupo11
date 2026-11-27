@@ -18,6 +18,21 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def cargar_env(ruta):
+    """Carga las líneas NOMBRE=valor de .env sin pisar lo que ya define el entorno."""
+    if not ruta.exists():
+        return
+    for linea in ruta.read_text(encoding='utf-8-sig').splitlines():
+        linea = linea.strip()
+        if not linea or linea.startswith('#') or '=' not in linea:
+            continue
+        nombre, valor = linea.split('=', 1)
+        os.environ.setdefault(nombre.strip(), valor.strip().strip('"\''))
+
+
+cargar_env(BASE_DIR / '.env')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 

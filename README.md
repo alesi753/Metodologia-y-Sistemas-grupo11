@@ -1,159 +1,36 @@
-# Aula Virtual — Grupo 11
+**Aula Virtual — Grupo 11** · Metodología de Sistemas II (TUP 2026) · David, Naim, Alejo y Amado.
 
-Proyecto integrador de **Metodología de Sistemas II** (TUP 2026) · David, Naim, Alejo y Amado.
+# ¿Qué es el proyecto?
 
----
+Aula virtual universitaria: cada cursada es un recorrido de unidades que se desbloquean al completar contenidos. No pone notas; parciales y entregas son fechas del calendario. Un tutor IA explica los temas y deriva al material donde se estudian.
 
-## Requisitos previos
+- **Incremento 1 — alumno (implementado):** cursadas, roadmap, avisos, calendario, clase en vivo con asistencia, contenidos (texto, cuestionario, práctica) y tutor IA.
+- **Incremento 2 — profesor (planificado):** importar programas en PDF, generar material con IA y seguir el avance.
 
-- **Python 3.12+** (con `venv` y `pip`).
-- **Base de datos:** SQLite (incluido con Python, no requiere instalación externa).
-- **Servicios externos:** opcionales. La IA puede ejecutarse en modo `falso` sin API key ni conexión a internet.
+**Stack:** Python 3.12+ · Django 6.1 · SQLite · Pico CSS · OpenRouter / Anthropic.
 
----
+# Cómo levantar la demo
 
-## Instalación y puesta en marcha
+1. Descargá el ZIP (**Code → Download ZIP**) y descomprimilo.
+2. Abrí `iniciar.bat` (Windows), `iniciar.command` (macOS) o `./iniciar.sh` (Linux). Python se instala solo.
+3. La primera vez se abre <https://openrouter.ai/settings/keys>: creá una clave y pegala en la ventana. Enter vacío = aula sin IA.
+4. Entrá en `http://127.0.0.1:8000/` con legajo `50231` y contraseña `demo1234`.
 
-### 1. Clonar el repositorio y crear el entorno virtual
+Para cerrar el aula, cerrá la ventana. Instalación manual y comandos de desarrollo: [docs/desarrollo.md](docs/desarrollo.md).
 
-```bash
-git clone https://github.com/alesi753/metodologia-y-sistemas-grupo11.git
-cd metodologia-y-sistemas-grupo11
-python3 -m venv .venv
-```
+# Índice y FAQ
 
-Activar el entorno virtual:
-
-```bash
-# Linux / macOS (bash / zsh)
-source .venv/bin/activate
-
-# Linux (fish)
-source .venv/bin/activate.fish
-
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-```
-
-### 2. Instalar dependencias y crear la base de datos
-
-```bash
-pip install -r requirements.txt
-python manage.py migrate
-```
-
-### 3. Configurar el modo de IA (para probar sin API key)
-
-```bash
-# Linux / macOS (bash / zsh)
-export IA_PROVEEDOR=falso
-
-# Linux (fish)
-set -x IA_PROVEEDOR falso
-
-# Windows (PowerShell)
-$env:IA_PROVEEDOR="falso"
-```
-
-### 4. Cargar datos de ejemplo y levantar el servidor
-
-```bash
-python manage.py cargar_demo    # Opcional (solo DEBUG=True): carga cursadas y usuarios de prueba
-python manage.py runserver
-```
-
-Abrir `http://127.0.0.1:8000/`. Al finalizar, `cargar_demo` imprime los accesos disponibles (alumno demo: legajo `50231`, admin: `admin-demo`, contraseña común: `demo1234`).
-
----
-
-## Verificación y comandos útiles
-
-```bash
-# Validación completa antes de abrir un PR (configuración + 122 tests sin red)
-python manage.py check && python manage.py test
-
-# Ejecutar un módulo de tests puntual
-python manage.py test aula.test_tutor
-
-# Reiniciar los datos de ejemplo desde cero
-python manage.py cargar_demo --reset
-
-# Probar los 3 casos de uso de IA por consola (sin conexión)
-python manage.py demo_ia --falso
-```
-
-> **Sobre los tests:** Django crea y destruye una base de datos temporal en cada corrida (no modifica `db.sqlite3`) y la suite usa `ProveedorFalso` y mocks para correr sin internet. El mensaje `invalid pdf header: b'esto '` durante la corrida es esperado: corresponde a `test_pdf_sin_texto_es_error` (`aula/test_ia.py`).
-
----
-
-## Configuración y variables de entorno
-
-Se configuran en el entorno local (`config/settings.py`). **Nunca versionar claves ni tokens reales en el repositorio.**
-
-| Variable | Por defecto | Uso |
-| --- | --- | --- |
-| `IA_PROVEEDOR` | `openrouter` | Proveedor activo: `openrouter`, `anthropic` o `falso` (sin conexión). |
-| `OPENROUTER_API_KEY` | — | Clave de [openrouter.ai](https://openrouter.ai) (requerida si `IA_PROVEEDOR=openrouter`). |
-| `IA_OPENROUTER_MODELO` | `openrouter/free` | Modelo de OpenRouter (con saldo: `deepseek/deepseek-v4.1-flash`). |
-| `ANTHROPIC_API_KEY` | — | Clave de API de Anthropic (requerida si `IA_PROVEEDOR=anthropic`). |
-| `IA_ANTHROPIC_MODELO` | `claude-sonnet-5-5` | Modelo de Anthropic. |
-| `SECRET_KEY` | clave insegura local | Obligatoria en producción. |
-
----
-
-## Qué es el proyecto
-
-Aula virtual universitaria organizada como un recorrido secuencial de unidades. El progreso se mide por contenidos completados (en término o fuera de término), sin sistema de notas; parciales y entregas son eventos del calendario.
-
-- **Implementado (Incremento 1 — Alumno, CU-01 a CU-08):** hub de cursadas, ficha y roadmap secuencial, avisos, calendario filtrable, clase del día y asistencia en vivo, contenidos en 3 formatos (`texto`, `cuestionario`, `practica`), unidad *Fe de erratas* fuera de secuencia y widget flotante del Tutor IA contextual.
-- **Planificado (Incremento 2 — Profesor, CU-09 a CU-16):** pantallas docentes para importar programas PDF, generar/editar material con IA y seguir el avance (la carga institucional hoy se realiza desde `/admin` y la lógica de IA ya vive en `aula/services/`).
-
-**Stack:** Python 3.12+ · Django 6.1 (MVT + Capa de Servicios + Signals) · SQLite · Templates Django + Pico CSS · OpenRouter / Anthropic.
-
----
-
-## Estructura del repositorio
-
-```text
-├── manage.py                     # CLI de Django
-├── requirements.txt              # Dependencias del proyecto
-├── config/                       # Configuración global (settings.py, urls.py, wsgi.py, asgi.py)
-├── aula/
-│   ├── models.py                 # Entidades de dominio y reglas de desbloqueo/progreso
-│   ├── migrations/               # Esquema versionado y grupos de rol (alumno / profesor)
-│   ├── admin.py                  # Panel institucional (/admin)
-│   ├── decorators.py             # Decorator: @rol_requerido
-│   ├── formatos.py               # Strategy: Texto, Cuestionario, Practica y registrar_progreso
-│   ├── signals.py + apps.py      # Observer: señales unidad_completada y aviso_publicado (on_commit)
-│   ├── views/                    # Vistas HTTP separadas por pantalla (inicio, cursada, calendario, clase, contenido, tutor)
-│   ├── services/                 # Lógica desacoplada de HTTP: ia_facade.py, ia_proveedores.py, tutor_service.py
-│   ├── templates/ y static/      # Plantillas HTML, CSS y widget JS (tutor.js)
-│   ├── management/commands/      # Comandos propios: cargar_demo y demo_ia
-│   └── tests.py + test_*.py      # Suite de 122 tests (13 módulos)
-└── docs/                         # Decisiones de diseño, plan de trabajo, casos de uso y esquema
-```
-
----
-
-## Endpoint del Tutor IA
-
-Único endpoint JSON consumido por el widget (`aula/static/aula/tutor.js`), implementado en `aula/views/tutor.py`:
-
-- **Ruta:** `POST /tutor/consultar/` (requiere sesión con rol `alumno`, `Content-Type: application/json` y `X-CSRFToken`).
-- **Entrada:** `{"pregunta": "...", "pantalla": "roadmap", "catedra_id": 1}` (`pregunta` obligatoria; IDs opcionales y enteros).
-- **Salida (`200 OK`):** `{"texto": "...", "referencias": [{"contenido_id": 4, "titulo": "...", "url": "/contenido/4/"}]}`.
-- **Errores:** `400` (JSON o datos inválidos), `403` (rol no autorizado, cátedra ajena Anti-IDOR o borrador), `404` (ID inexistente), `405` (método distinto de `POST`), `503` (fallo del proveedor IA).
-
----
-
-## Flujo de trabajo y documentación técnica
-
-Todo cambio parte de `develop` en una rama por capa (`infraestructura/`, `backend/`, `frontend/`, `docs/`) y se integra por Pull Request con `python manage.py check && python manage.py test` en verde y documentación actualizada.
-
-| Documento | Contenido |
+| Tema | Documento |
 | --- | --- |
-| [Decisiones de diseño (ADR)](docs/decisiones-diseno.md) | Patrones aplicados, descartados y sus motivos |
-| [Plan de trabajo](docs/plan-de-trabajo.md) | Reglas de ramas y estado de los incrementos |
-| [Casos de uso del alumno](docs/casos-de-uso/alumno.md) | Especificación CU-01 a CU-08 y diagrama (`alumno.puml`) |
-| [Casos de uso del profesor](docs/casos-de-uso/profesor.md) | Especificación CU-09 a CU-16 y diagrama (`profesor.puml`) |
-| [Diagrama de dominio](docs/schemas/schema.mmd) | Modelo de clases en Mermaid |
+| Instalación manual, variables, tests y estructura | [docs/desarrollo.md](docs/desarrollo.md) |
+| Decisiones de diseño y patrones | [docs/decisiones-diseno.md](docs/decisiones-diseno.md) |
+| Plan de trabajo e incrementos | [docs/plan-de-trabajo.md](docs/plan-de-trabajo.md) |
+| Casos de uso del alumno y del profesor | [alumno.md](docs/casos-de-uso/alumno.md) · [profesor.md](docs/casos-de-uso/profesor.md) |
+| Modelo de dominio | [docs/schemas/schema.mmd](docs/schemas/schema.mmd) |
+| Endpoint del tutor IA | [docs/api-tutor.md](docs/api-tutor.md) |
+| Problemas frecuentes | [docs/faq.md](docs/faq.md) |
+
+- **¿Cómo cambio la clave de IA?** Borrá `.env` y volvé a abrir el lanzador. → [FAQ](docs/faq.md#clave-de-ia)
+- **El tutor da error.** Los modelos gratuitos tienen límites; reintentá. → [FAQ](docs/faq.md#el-tutor-da-error)
+- **Windows o macOS no me deja abrir el lanzador.** → [FAQ](docs/faq.md#avisos-de-seguridad)
+- **¿Cómo vuelvo a los datos de ejemplo?** → [FAQ](docs/faq.md#datos-de-ejemplo)
