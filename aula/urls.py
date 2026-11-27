@@ -3,7 +3,7 @@
 # aparecen en la navegación están en aula/context_processors.py.
 from django.urls import path
 
-from .views import calendario, clase, contenido, cursada, inicio
+from .views import calendario, clase, contenido, cursada, inicio, tutor
 
 urlpatterns = [
     path("", inicio.inicio, name="inicio"),
@@ -14,4 +14,5 @@ urlpatterns = [
     path("clase/<int:clase_id>/", clase.detalle, name="clase"),
     path("clase/<int:clase_id>/unirse/", clase.unirse, name="unirse"),
     path("contenido/<int:contenido_id>/", contenido.contenido, name="contenido"),
+    path("tutor/consultar/", tutor.tutor_consultar, name="tutor_consultar"),
 ]
