@@ -1,0 +1,69 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}Calendario{% endblock %}
+
+{% block contenido %}
+<header class="calendario-encabezado">
+  <a href="?mes={{ anterior }}&ver={{ ver }}" aria-label="Mes anterior">‹</a>
+  <h2>{{ mes|date:'F Y'|capfirst }}</h2>
+  <a href="?mes={{ siguiente }}&ver={{ ver }}" aria-label="Mes siguiente">›</a>
+</header>
+
+<nav class="calendario-filtros" aria-label="Filtrar el calendario">
+  <ul>
+    {% for clave, etiqueta in filtros.items %}
+    <li><a href="?mes={{ mes|date:'Y-m' }}&ver={{ clave }}"{% if clave == ver %} aria-current="true"{% endif %}>{{ etiqueta }}</a></li>
+    {% endfor %}
+    {% if mes|date:'Y-m' != actual %}
+    <li><a href="?ver={{ ver }}">Hoy</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<table class="calendario-grilla">
+  <thead>
+    <tr>{% for dia in dias_semana %}<th scope="col">{{ dia }}</th>{% endfor %}</tr>
+  </thead>
+  <tbody>
+    {% for semana in grilla %}
+    <tr>
+      {% for dia in semana %}
+      <td class="{% if not dia.del_mes %}fuera-de-mes{% endif %}{% if dia.fecha == hoy %} hoy{% endif %}">
+        {% if dia.items and dia.del_mes %}
+        <a href="#dia-{{ dia.fecha|date:'Y-m-d' }}">{{ dia.fecha.day }}</a>
+        {% else %}
+        <span>{{ dia.fecha.day }}</span>
+        {% endif %}
+        <div class="marcas">
+          {% for item in dia.items %}<i class="{% if item.es_clase %}marca-clase{% else %}marca-fecha{% endif %}" title="{{ item.titulo }}"></i>{% endfor %}
+        </div>
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="calendario-referencias">
+  <small><i class="marca-clase"></i> Clase <i class="marca-fecha"></i> Fecha importante</small>
+</p>
+
+<section class="agenda">
+  {% for dia, items in agenda %}
+  <article id="dia-{{ dia|date:'Y-m-d' }}"{% if dia == hoy %} class="hoy"{% endif %}>
+    <header><strong>{% if dia == hoy %}Hoy, {% endif %}{{ dia|date:'l j'|capfirst }}</strong></header>
+    <ul>
+      {% for item in items %}
+      <li class="{% if item.es_clase %}item-clase{% else %}item-fecha{% endif %}">
+        {% if item.hora %}<time>{{ item.hora|time:'H:i' }}</time>{% endif %}
+        {{ item.titulo }}
+        <small><a href="{% url 'roadmap' item.catedra.id %}">{{ item.catedra.materia }}</a></small>
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+  {% empty %}
+  <p>No hay {% if ver == 'clases' %}clases{% elif ver == 'fechas' %}fechas importantes{% else %}clases ni fechas{% endif %} este mes.</p>
+  {% endfor %}
+</section>
+{% endblock %}
