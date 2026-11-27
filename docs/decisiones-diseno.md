@@ -14,7 +14,7 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 | Adapter | Estructural | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
 | Decorator | Estructural | Aplicado | `aula/decorators.py` | `backend/rol-requerido` |
 | Strategy | Comportamiento | Aplicado | `aula/formatos.py` | `backend/formatos-contenido` |
-| Observer | Comportamiento | Planificado | `aula/signals.py` | `backend/observer` |
+| Observer | Comportamiento | Aplicado | `aula/signals.py` | `backend/observer` |
 | Command | Comportamiento | Descartado | — | — |
 | Factory (simple) | Creacional | Aplicado | `aula/services/ia_proveedores.py` | `backend/ia-facade` |
 | Builder, Singleton | Creacionales | Descartados | — | — |
@@ -62,9 +62,9 @@ Registro de decisiones del grupo para Metodología de Sistemas II. Aplicamos un 
 
 ### 2.2. Observer
 
-- **Estado:** planificado. `aula/signals.py` existe pero está vacío.
+- **Estado:** aplicado en `aula/signals.py`, conectado en `AulaConfig.ready()`. Los receptores de `post_save` de `Progreso` y `Aviso` emiten dos señales de dominio: `unidad_completada` (alumno, unidad y la siguiente si se desbloqueó) y `aviso_publicado` (aviso, cátedra y destinatarios). Por ahora solo las registra el log: todavía no hay receptores que notifiquen.
 - **Problema:** cuando un alumno completa un contenido o la cátedra publica un aviso, pasan cosas secundarias, como avisarle que se desbloqueó la unidad siguiente o notificar a los inscriptos. Esas reacciones no deberían frenar ni ensuciar el guardado.
-- **Decisión:** usar signals de Django (`post_save`). El modelo guarda y emite el evento; los receptores reaccionan cada uno por su lado.
+- **Decisión:** usar signals de Django (`post_save`). El modelo guarda y emite el evento; los receptores reaccionan cada uno por su lado. Las señales se emiten con `transaction.on_commit`, así una reacción nunca ve un guardado que después se deshace.
 - **Beneficio:** sumar una reacción nueva no obliga a tocar el código que guarda.
 
 ### 2.3. Command
