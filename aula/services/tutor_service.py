@@ -26,9 +26,8 @@ class RespuestaTutorWeb:
 
 
 def url_material(contenido: Contenido) -> str:
-    """Construye una URL válida hacia el material usando resolución dinámica de Django."""
-    base = reverse('roadmap', args=[contenido.unidad.catedra_id])
-    return f'{base}#contenido-{contenido.id}'
+    """URL de la pantalla del contenido (CU-07), donde el alumno lo estudia."""
+    return reverse('contenido', args=[contenido.id])
 
 
 def _validar_inscripcion(alumno: Usuario, catedra_id: int) -> None:

@@ -34,8 +34,9 @@
   </main>
 
   {% if es_alumno %}
-  {# Lugar del tutor IA (CU-08). Lo completa la rama frontend/tutor-widget. #}
-  <aside id="tutor">{% block tutor %}{% endblock %}</aside>
+  {# Tutor IA (CU-08). Una pantalla puede pisar el bloque para ocultarlo. #}
+  <aside id="tutor">{% block tutor %}{% include 'aula/_tutor.html' %}{% endblock %}</aside>
+  <script src="{% static 'aula/tutor.js' %}" defer></script>
   {% endif %}
 
   {% if menu %}

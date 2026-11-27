@@ -46,7 +46,7 @@ nav.navegacion-inferior a[aria-current="page"] {
 
 /* Deja lugar para que la navegación no tape el final de la página. */
 body.con-navegacion main {
-  padding-bottom: 5rem;
+  padding-bottom: 8rem; /* navegación inferior y botón del tutor */
 }
 
 /* Hub del alumno (CU-01). */
@@ -275,4 +275,108 @@ nav.calendario-filtros a[aria-current="true"] {
 
 .cuestionario ol > li {
   list-style: none;
+}
+
+/* Tutor IA (CU-08): botón flotante sobre la navegación inferior y panel. */
+.tutor-boton {
+  position: fixed;
+  right: 1rem;
+  bottom: 4.5rem;
+  z-index: 20;
+  width: auto;
+  margin: 0;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+}
+
+.tutor-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 8rem;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  width: min(24rem, calc(100vw - 2rem));
+  max-height: min(32rem, calc(100vh - 10rem));
+  padding: 1rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+}
+
+.tutor-panel[hidden] {
+  display: none;
+}
+
+.tutor-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tutor-cerrar {
+  width: auto;
+  margin: 0;
+  padding: 0 0.6rem;
+}
+
+.tutor-ayuda {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.tutor-mensajes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tutor-mensaje {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--pico-border-radius);
+  white-space: pre-wrap;
+}
+
+.tutor-pregunta {
+  margin-left: 2rem;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
+
+.tutor-respuesta {
+  margin-right: 2rem;
+  background: var(--pico-background-color);
+}
+
+.tutor-respuesta ul {
+  margin: 0.25rem 0 0;
+  white-space: normal;
+}
+
+.tutor-pensando {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.tutor-error {
+  border-left: 3px solid var(--pico-del-color);
+}
+
+.tutor-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  margin: 0.5rem 0 0;
+}
+
+.tutor-form textarea {
+  flex: 1;
+  margin: 0;
+  resize: none;
+}
+
+.tutor-form button {
+  width: auto;
+  margin: 0;
 }

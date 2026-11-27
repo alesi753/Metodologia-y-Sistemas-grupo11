@@ -27,7 +27,7 @@ Las ramas en **negrita** bloquean a las que vienen después. El resto se puede t
 - [x] `backend/formatos-contenido`: Strategy por formato y registro del progreso. *Después de `schema-alumno`.*
 - [ ] `backend/observer`: reacciones al completar contenido y al publicar avisos. *Después de `formatos-contenido`.*
 - [x] `backend/ia-facade`: Facade y Adapter de la IA, con un proveedor falso para tests. *Se puede empezar ya.*
-- [ ] `backend/tutor`: consulta al tutor con el contexto de la pantalla y enlaces al material. *Después de `ia-facade`.*
+- [x] `backend/tutor`: consulta al tutor con el contexto de la pantalla y enlaces al material. *Después de `ia-facade`.*
 
 ### frontend/
 Cada rama de pantalla incluye su vista y su template.
@@ -37,8 +37,8 @@ Cada rama de pantalla incluye su vista y su template.
 - [x] `frontend/curso-avisos` (Amado): ficha del curso, unidades y avisos (CU-02, CU-03). *Después de `base-navegacion`.*
 - [x] `frontend/calendario` (Amado): clases y fechas del mes con filtro (CU-04). *Después de `base-navegacion`.*
 - [x] `frontend/clase` (Amado): clase del día, link en vivo y asistencia (CU-05, CU-06). *Después de `base-navegacion`.*
-- [ ] `frontend/contenido` (Amado): un template por formato (CU-07). *Después de `formatos-contenido` y `base-navegacion`.*
-- [ ] `frontend/tutor-widget`: botón y panel del tutor (CU-08). *Después de `tutor` y `base-navegacion`.*
+- [x] `frontend/contenido` (Amado): un template por formato (CU-07). *Después de `formatos-contenido` y `base-navegacion`.*
+- [ ] `frontend/tutor-widget` (Amado): botón y panel del tutor (CU-08). *Después de `tutor` y `base-navegacion`.*
 
 ## Próximo incremento
 

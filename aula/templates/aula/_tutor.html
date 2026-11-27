@@ -1,0 +1,26 @@
+{# Widget del tutor IA (CU-08). Lo incluye base.html solo para alumnos. #}
+{# El contexto de la pantalla viene del context processor (aula/context_processors.py). #}
+<div class="tutor"
+     data-url="{% url 'tutor_consultar' %}"
+     data-pantalla="{{ tutor.pantalla }}"
+     {% if tutor.catedra_id %}data-catedra-id="{{ tutor.catedra_id }}"{% endif %}
+     {% if tutor.clase_id %}data-clase-id="{{ tutor.clase_id }}"{% endif %}
+     {% if tutor.contenido_id %}data-contenido-id="{{ tutor.contenido_id }}"{% endif %}>
+  <button type="button" class="tutor-boton" aria-expanded="false" aria-controls="tutor-panel">
+    Tutor IA
+  </button>
+
+  <section id="tutor-panel" class="tutor-panel" role="dialog" aria-label="Tutor IA" hidden>
+    <header>
+      <strong>Tutor IA</strong>
+      <button type="button" class="tutor-cerrar secondary outline" aria-label="Cerrar el tutor">×</button>
+    </header>
+    <p class="tutor-ayuda"><small>Explica el tema en general y te indica dónde estudiarlo. No resuelve cuestionarios ni prácticas.</small></p>
+    <div class="tutor-mensajes" aria-live="polite"></div>
+    <form class="tutor-form">
+      {% csrf_token %}
+      <textarea name="pregunta" rows="2" maxlength="1000" placeholder="¿Qué querés repasar?" required></textarea>
+      <button type="submit">Preguntar</button>
+    </form>
+  </section>
+</div>
