@@ -28,6 +28,7 @@ Aula virtual donde cada cursada es un recorrido de unidades secuenciales. El alu
 | [Plan de trabajo](docs/plan-de-trabajo.md) | Ramas del incremento actual, en qué orden van y cómo trabajamos con git |
 | [Decisiones de diseño](docs/decisiones-diseno.md) | Patrones de diseño: cuáles aplicamos, cuáles faltan y cuáles descartamos |
 | [Casos de uso del alumno](docs/casos-de-uso/alumno.md) | Diagrama y especificación de lo que hace el alumno |
+| [Casos de uso del profesor](docs/casos-de-uso/profesor.md) | Diagrama y especificación de lo que hace el profesor (Incremento 2) |
 | [Schema](docs/schemas/schema.mmd) | Diagrama de clases del dominio |
 
 ## Instalación

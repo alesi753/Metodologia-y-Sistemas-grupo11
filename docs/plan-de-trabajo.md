@@ -40,6 +40,30 @@ Cada rama de pantalla incluye su vista y su template.
 - [x] `frontend/contenido` (Amado): un template por formato (CU-07). *Después de `formatos-contenido` y `base-navegacion`.*
 - [x] `frontend/tutor-widget` (Amado): botón y panel del tutor (CU-08). *Después de `tutor` y `base-navegacion`.*
 
-## Próximo incremento
+## Incremento 2: perspectiva del profesorado
 
-Perspectiva del profesorado: importar el programa, generar contenido con IA, revisar y publicar, cargar clases, fechas y avisos, y seguir el progreso. Arranca cuando esté completa la lista de arriba.
+Objetivo: que el profesor arme y siga su cátedra sin pasar por el admin: importar el programa, generar contenido con IA, revisarlo y publicarlo, cargar clases, fechas y avisos, y seguir el progreso. Los casos de uso están en [casos-de-uso/profesor.md](casos-de-uso/profesor.md).
+
+Las pantallas del profesor van en `aula/views/` como las del alumno, un módulo por pantalla. Las rutas del profesor cuelgan de `catedra/<id>/` para no mezclarse con las del alumno (`cursada/<id>/`).
+
+### docs/
+- [ ] `docs/casos-de-uso-profesor`: diagrama y especificación del profesor, y este plan.
+
+### infraestructura/
+- [ ] `infraestructura/fechas-cursada`: `inicio` y `fin` en `Catedra`, en el admin y en los datos de la demo. El calendario del alumno deja de suponer los meses del cuatrimestre.
+
+### backend/
+- [ ] **`backend/catedra-a-cargo`**: restringir las vistas del profesor a sus cátedras (decorator o helper junto a `rol_requerido`) y menú del profesor en la navegación.
+- [ ] **`backend/edicion-formatos`**: cada estrategia de `aula/formatos.py` suma su formulario de edición, que arma y valida el `cuerpo`. *Lo usan la generación y la revisión de contenido.*
+- [ ] `backend/fe-de-erratas`: publicar en una unidad ya completada por algún alumno manda el contenido a la fe de erratas de la cátedra (la crea si no existe). *Después de `edicion-formatos`.*
+- [ ] `backend/notificar-avisos`: receptor de `aviso_publicado` que avisa a los inscriptos (mail por consola en desarrollo) y emisión de la señal recién al llegar `publicado_en`. *Según la decisión 4 de los casos de uso.*
+
+### frontend/
+Cada rama de pantalla incluye su vista y su template. Todas van *después de `catedra-a-cargo`*.
+
+- [ ] `frontend/profesor-hub`: inicio con cátedras a cargo, avance, borradores pendientes y próximas fechas (CU-09).
+- [ ] `frontend/importar-programa`: subir el PDF, revisar las unidades propuestas y confirmarlas (CU-10).
+- [ ] `frontend/contenidos-catedra`: listado de contenidos, generar con IA, editar y publicar (CU-11, CU-12). *Después de `edicion-formatos`; la publicación en fe de erratas, después de `fe-de-erratas`.*
+- [ ] `frontend/profesor-clases`: generar el cronograma desde los horarios y editar cada clase (CU-13). *Después de `fechas-cursada`.*
+- [ ] `frontend/fechas-avisos`: fechas importantes y avisos de la cátedra (CU-14, CU-15).
+- [ ] `frontend/seguimiento`: progreso por alumno y unidad, entregas y asistencia (CU-16).

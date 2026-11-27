@@ -1,0 +1,61 @@
+@startuml profesor
+' Diagrama de casos de uso: perspectiva del Profesor.
+' Precondición de todos los casos: sesión iniciada con el grupo "profesor"
+' y la cátedra a cargo del profesor.
+' Render: java -jar plantuml.jar -tsvg docs/casos-de-uso/profesor.puml
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Sans
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #555555
+}
+skinparam rectangle {
+  BorderColor #888888
+}
+
+actor "Profesor" as profesor
+
+rectangle "Aula Virtual" {
+  rectangle "Cátedras" {
+    usecase "CU-09\nConsultar cátedras a cargo" as UC09
+    usecase "CU-16\nSeguir el progreso" as UC16
+  }
+
+  rectangle "Material" {
+    usecase "CU-10\nImportar el programa" as UC10
+    usecase "Revisar unidades\npropuestas" as UC10a
+    usecase "CU-11\nGenerar contenido con IA" as UC11
+    usecase "CU-12\nRevisar y publicar contenido" as UC12
+    usecase "Validar el cuerpo\nsegún el formato" as UC12v
+    usecase "Publicar como\nfe de erratas" as UC12e
+  }
+
+  rectangle "Cursada" {
+    usecase "CU-13\nCargar el cronograma\nde clases" as UC13
+    usecase "CU-14\nCargar fechas importantes" as UC14
+    usecase "CU-15\nPublicar un aviso" as UC15
+    usecase "Notificar a\nlos inscriptos" as UC15n
+  }
+}
+
+actor "Servicio de IA\n(OpenRouter / Anthropic)" as ia <<sistema>>
+
+profesor -- UC09
+profesor -- UC10
+profesor -- UC11
+profesor -- UC12
+profesor -- UC13
+profesor -- UC14
+profesor -- UC15
+profesor -- UC16
+
+UC10 ..> UC10a : <<include>>
+UC11 ..> UC12 : <<include>>
+UC12 ..> UC12v : <<include>>
+UC12e .> UC12 : <<extend>>
+UC15 ..> UC15n : <<include>>
+
+UC10 -- ia
+UC11 -- ia
+@enduml
