@@ -40,3 +40,35 @@
 body.con-navegacion main {
   padding-bottom: 5rem;
 }
+
+/* Hub del alumno (CU-01). */
+.cursada header,
+.aviso header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.cursada progress {
+  margin-bottom: 0.25rem;
+}
+
+.fechas {
+  padding: 0;
+}
+
+.fechas li {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+}
+
+.fechas time {
+  flex: 0 0 5.5rem;
+  font-weight: bold;
+}
+
+.fechas small {
+  display: block;
+}

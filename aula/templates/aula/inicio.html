@@ -2,17 +2,74 @@
 
 {% block contenido %}
 {% if cursadas %}
-<h2>Mis cursadas</h2>
-{% for catedra in cursadas %}
-<article><a href="{% url 'roadmap' catedra.id %}">{{ catedra }}</a></article>
-{% endfor %}
+<section>
+  <h2>Mis cursadas</h2>
+  {% for item in cursadas %}
+  <article class="cursada">
+    <header>
+      <a href="{% url 'roadmap' item.catedra.id %}"><strong>{{ item.catedra.materia }}</strong></a>
+      <small>{{ item.catedra.anio }}, {{ item.catedra.get_cuatrimestre_display }} cuatrimestre</small>
+    </header>
+    {% if item.unidad_actual %}
+    <p>Vas por la {{ item.unidad_actual }}</p>
+    {% elif item.total %}
+    <p>Completaste el recorrido.</p>
+    {% else %}
+    <p>Todavía no hay contenido publicado.</p>
+    {% endif %}
+    {% if item.total %}
+    <progress value="{{ item.hechos }}" max="{{ item.total }}"></progress>
+    <small>{{ item.hechos }} de {{ item.total }} contenidos completados</small>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+
+<section>
+  <h2>Próximas fechas</h2>
+  {% if fechas %}
+  <ul class="fechas">
+    {% for evento in fechas %}
+    <li>
+      <time datetime="{{ evento.fecha|date:'Y-m-d' }}">
+        {% if evento.fecha == hoy %}Hoy{% else %}{{ evento.fecha|date:'D j/n' }}{% endif %}
+      </time>
+      <span>
+        <strong>{{ evento.get_tipo_display }}:</strong> {{ evento.titulo }}
+        <small>{{ evento.catedra.materia }}</small>
+        {% if evento.entregado is True %}<mark>Entregada</mark>{% elif evento.entregado is False %}<small>(pendiente)</small>{% endif %}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No hay fechas próximas.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Últimos avisos</h2>
+  {% for aviso in avisos %}
+  <article class="aviso">
+    <header>
+      <strong>{{ aviso.titulo }}</strong>
+      <small>{{ aviso.catedra.materia }} · {{ aviso.publicado_en|date:'j/n H:i' }}{% if aviso.autor %} · {{ aviso.autor }}{% endif %}</small>
+    </header>
+    <p>{{ aviso.cuerpo|truncatewords:40 }}</p>
+  </article>
+  {% empty %}
+  <p>No hay avisos.</p>
+  {% endfor %}
+</section>
 {% endif %}
 
 {% if catedras %}
-<h2>Cátedras a cargo</h2>
-{% for catedra in catedras %}
-<article>{{ catedra }}</article>
-{% endfor %}
+<section>
+  <h2>Cátedras a cargo</h2>
+  {% for catedra in catedras %}
+  <article>{{ catedra }}</article>
+  {% endfor %}
+</section>
 {% endif %}
 
 {% if not cursadas and not catedras %}
