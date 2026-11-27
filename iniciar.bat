@@ -4,6 +4,13 @@ rem deja el resto (clave de IA, base y servidor) a scripts\iniciar.py.
 chcp 65001 >nul
 cd /d "%~dp0"
 
+rem Abierto desde adentro del ZIP, Windows extrae solo este archivo a una carpeta temporal.
+if not exist manage.py (
+    echo Primero descomprimi el ZIP: clic derecho, "Extraer todo", y abri iniciar.bat desde la carpeta extraida.
+    pause
+    exit /b 1
+)
+
 where uv >nul 2>nul
 if errorlevel 1 (
     echo Instalando uv, que prepara Python automaticamente...
