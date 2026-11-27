@@ -253,3 +253,26 @@ nav.calendario-filtros a[aria-current="true"] {
 .mensaje-error {
   border-left-color: var(--pico-del-color);
 }
+
+/* Contenido (CU-07). */
+.cuestionario fieldset {
+  margin-bottom: 1rem;
+}
+
+.cuestionario legend {
+  font-weight: bold;
+}
+
+.cuestionario li.correcta {
+  color: var(--pico-ins-color);
+  font-weight: bold;
+}
+
+/* El número va dentro del enunciado: la viñeta de la lista se desalinea con el fieldset. */
+.cuestionario ol {
+  padding: 0;
+}
+
+.cuestionario ol > li {
+  list-style: none;
+}

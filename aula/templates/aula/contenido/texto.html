@@ -1,0 +1,25 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}{{ contenido.titulo }}{% endblock %}
+
+{% block contenido %}
+{% include 'aula/contenido/_encabezado.html' %}
+
+{% for seccion in contenido.cuerpo.secciones %}
+<section>
+  <h3>{{ seccion.titulo }}</h3>
+  {{ seccion.texto|linebreaks }}
+</section>
+{% endfor %}
+
+{% if contenido.archivo %}
+<p><a href="{{ contenido.archivo.url }}">Descargar el material</a></p>
+{% endif %}
+
+{% if not completado %}
+<form method="post">
+  {% csrf_token %}
+  <button>Marcar como leído</button>
+</form>
+{% endif %}
+{% endblock %}

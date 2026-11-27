@@ -36,8 +36,8 @@ Cada rama de pantalla incluye su vista y su template.
 - [x] `frontend/hub` (Amado): inicio con cursadas, próximas fechas y avisos (CU-01). *Después de `base-navegacion`.*
 - [x] `frontend/curso-avisos` (Amado): ficha del curso, unidades y avisos (CU-02, CU-03). *Después de `base-navegacion`.*
 - [x] `frontend/calendario` (Amado): clases y fechas del mes con filtro (CU-04). *Después de `base-navegacion`.*
-- [ ] `frontend/clase` (Amado): clase del día, link en vivo y asistencia (CU-05, CU-06). *Después de `base-navegacion`.*
-- [ ] `frontend/contenido`: un template por formato (CU-07). *Después de `formatos-contenido` y `base-navegacion`.*
+- [x] `frontend/clase` (Amado): clase del día, link en vivo y asistencia (CU-05, CU-06). *Después de `base-navegacion`.*
+- [ ] `frontend/contenido` (Amado): un template por formato (CU-07). *Después de `formatos-contenido` y `base-navegacion`.*
 - [ ] `frontend/tutor-widget`: botón y panel del tutor (CU-08). *Después de `tutor` y `base-navegacion`.*
 
 ## Próximo incremento

@@ -35,7 +35,7 @@
         {% if evento.fecha == hoy %}Hoy{% else %}{{ evento.fecha|date:'D j/n' }}{% endif %}
       </time>
       <span>
-        <strong>{{ evento.get_tipo_display }}:</strong> {{ evento.titulo }}
+        <strong>{{ evento.get_tipo_display }}:</strong> {% if evento.contenido_id %}<a href="{% url 'contenido' evento.contenido_id %}">{{ evento.titulo }}</a>{% else %}{{ evento.titulo }}{% endif %}
         <small>{{ evento.catedra.materia }}</small>
         {% if evento.entregado is True %}<mark>Entregada</mark>{% elif evento.entregado is False %}<small>(pendiente)</small>{% endif %}
       </span>

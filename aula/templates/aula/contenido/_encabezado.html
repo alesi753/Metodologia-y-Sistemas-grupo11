@@ -1,0 +1,12 @@
+{# Encabezado común a los tres formatos de contenido. #}
+<p><a href="{% url 'roadmap' unidad.catedra_id %}">‹ {{ unidad.catedra.materia }}</a></p>
+<hgroup>
+  <h2>{{ contenido.titulo }}</h2>
+  <p>
+    {{ unidad }} · {{ contenido.get_formato_display }}
+    {% if completado %}· <mark>Completado{% if not progreso.en_termino %} fuera de término{% endif %}</mark>{% endif %}
+  </p>
+</hgroup>
+{% if unidad.fecha_limite and not completado %}
+<p><small>Fecha límite de la unidad: {{ unidad.fecha_limite }}</small></p>
+{% endif %}

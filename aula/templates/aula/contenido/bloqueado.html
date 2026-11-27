@@ -1,0 +1,18 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}{{ contenido.titulo }}{% endblock %}
+
+{% block contenido %}
+<p><a href="{% url 'roadmap' unidad.catedra_id %}">‹ {{ unidad.catedra.materia }}</a></p>
+<article>
+  <h2>{{ contenido.titulo }}</h2>
+  <p>Este contenido es de la {{ unidad }}, que todavía está bloqueada.</p>
+  {% if abre_mas_adelante %}
+  <p>Abre el {{ unidad.fecha_apertura }}.</p>
+  {% elif unidad.es_fe_de_erratas %}
+  <p>Se abre cuando completes las unidades que corrige.</p>
+  {% elif anterior %}
+  <p>Primero completá la {{ anterior }}.</p>
+  {% endif %}
+</article>
+{% endblock %}

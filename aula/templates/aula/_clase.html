@@ -18,7 +18,7 @@
   <h4>Material</h4>
   <ul>
     {% for contenido in material %}
-    <li>{% if contenido.id in hechos %}✔ {% endif %}{{ contenido.titulo }}</li>
+    <li>{% if contenido.id in hechos %}✔ {% endif %}<a href="{% url 'contenido' contenido.id %}">{{ contenido.titulo }}</a></li>
     {% endfor %}
   </ul>
   {% endif %}
@@ -27,7 +27,7 @@
   <h4>Tareas</h4>
   <ul>
     {% for contenido in tareas %}
-    <li>{% if contenido.id in hechos %}✔ {% endif %}{{ contenido.titulo }} <small>({{ contenido.get_formato_display }})</small></li>
+    <li>{% if contenido.id in hechos %}✔ {% endif %}<a href="{% url 'contenido' contenido.id %}">{{ contenido.titulo }}</a> <small>({{ contenido.get_formato_display }})</small></li>
     {% endfor %}
   </ul>
   {% endif %}

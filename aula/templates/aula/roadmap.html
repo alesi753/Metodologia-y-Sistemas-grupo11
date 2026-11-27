@@ -76,7 +76,7 @@
       {% for contenido in item.contenidos %}
       <li>
         {% if contenido.id in hechos %}✔{% endif %}
-        {{ contenido.titulo }} <small>({{ contenido.get_formato_display }})</small>
+        <a href="{% url 'contenido' contenido.id %}">{{ contenido.titulo }}</a> <small>({{ contenido.get_formato_display }})</small>
       </li>
       {% empty %}
       <li>Todavía no hay contenido publicado.</li>

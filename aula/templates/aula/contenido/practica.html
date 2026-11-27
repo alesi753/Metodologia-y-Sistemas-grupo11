@@ -1,0 +1,40 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}{{ contenido.titulo }}{% endblock %}
+
+{% block contenido %}
+{% include 'aula/contenido/_encabezado.html' %}
+
+<section>
+  <h3>Consigna</h3>
+  {{ contenido.cuerpo.consigna|linebreaks }}
+
+  {% if contenido.cuerpo.entregables %}
+  <h3>Qué entregar</h3>
+  <ul>
+    {% for entregable in contenido.cuerpo.entregables %}<li>{{ entregable }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if contenido.archivo %}
+  <p><a href="{{ contenido.archivo.url }}">Descargar el material de la práctica</a></p>
+  {% endif %}
+</section>
+
+{% if completado %}
+<article>
+  Entregaste
+  {% if progreso.archivo %}<a href="{{ progreso.archivo.url }}">{{ progreso.archivo.name|cut:'practicas/' }}</a>{% else %}la práctica{% endif %}
+  el {{ progreso.completado_en|date:'j/n/Y H:i' }}.
+</article>
+{% else %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <label>
+    Archivo{% if contenido.cuerpo.formatos_aceptados %} ({{ contenido.cuerpo.formatos_aceptados }}){% endif %}
+    <input type="file" name="archivo"{% if accept %} accept="{{ accept }}"{% endif %} required>
+  </label>
+  <button>Entregar</button>
+</form>
+{% endif %}
+{% endblock %}

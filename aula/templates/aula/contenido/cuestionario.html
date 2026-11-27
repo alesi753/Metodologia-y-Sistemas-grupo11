@@ -1,0 +1,54 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}{{ contenido.titulo }}{% endblock %}
+
+{% block contenido %}
+{% include 'aula/contenido/_encabezado.html' %}
+
+{% if resultado and not completado %}
+<article class="mensaje mensaje-error">
+  Acertaste {{ resultado.aciertos }} de {{ resultado.total }}. Para aprobar necesitás al menos el {{ resultado.minimo }}%.
+  Llevás {{ progreso.intentos }} intento{{ progreso.intentos|pluralize }}.
+</article>
+{% endif %}
+
+{% if completado %}
+<p>Aprobaste con {{ resultado.aciertos }} de {{ resultado.total }} en {{ progreso.intentos }} intento{{ progreso.intentos|pluralize }}.</p>
+<ol class="cuestionario">
+  {% for pregunta in contenido.cuerpo.preguntas %}
+  <li>
+    <p><strong>{{ forloop.counter }}. {{ pregunta.enunciado }}</strong></p>
+    <ul>
+      {% for opcion in pregunta.opciones %}
+      <li class="{% if forloop.counter0 == pregunta.correcta %}correcta{% endif %}">
+        {% if forloop.counter0 == pregunta.correcta %}✔ {% endif %}{{ opcion }}
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<form method="post" class="cuestionario">
+  {% csrf_token %}
+  <ol>
+    {% for pregunta in contenido.cuerpo.preguntas %}
+    {% with numero=forloop.counter0 %}
+    <li>
+      <fieldset>
+        <legend>{{ forloop.counter }}. {{ pregunta.enunciado }}</legend>
+        {% for opcion in pregunta.opciones %}
+        <label>
+          <input type="radio" name="pregunta-{{ numero }}" value="{{ forloop.counter0 }}" required>
+          {{ opcion }}
+        </label>
+        {% endfor %}
+      </fieldset>
+    </li>
+    {% endwith %}
+    {% endfor %}
+  </ol>
+  <button>Enviar respuestas</button>
+</form>
+{% endif %}
+{% endblock %}
