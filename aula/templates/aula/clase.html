@@ -1,0 +1,19 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}Clase {{ clase.numero }} · {{ clase.catedra.materia }}{% endblock %}
+
+{% block contenido %}
+<p><a href="{% url 'clase_hoy' %}">‹ Clase de hoy</a></p>
+
+{% if habilitada %}
+  {% include 'aula/_clase.html' %}
+{% else %}
+<article>
+  <h3>Clase {{ clase.numero }}: {{ clase.titulo }}</h3>
+  <p>
+    Esta clase todavía no está habilitada. Se abre el {{ clase.fecha|date:'l j/n' }}
+    {% if clase.unidad %}o antes, cuando completes las unidades anteriores a la {{ clase.unidad }}{% endif %}.
+  </p>
+</article>
+{% endif %}
+{% endblock %}

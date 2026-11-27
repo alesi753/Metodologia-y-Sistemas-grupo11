@@ -1,0 +1,52 @@
+{# Tarjeta de una clase. Espera las variables que arma _detalle en aula/views/clase.py. #}
+<article class="clase">
+  <header>
+    <hgroup>
+      <h3>Clase {{ clase.numero }}: {{ clase.titulo }}</h3>
+      <p>
+        <a href="{% url 'roadmap' clase.catedra_id %}">{{ clase.catedra.materia }}</a> ·
+        {% if es_hoy %}Hoy{% else %}{{ clase.fecha|date:'l j/n'|capfirst }}{% endif %},
+        {{ clase.hora_inicio|time:'H:i' }} a {{ clase.hora_fin|time:'H:i' }}
+      </p>
+    </hgroup>
+  </header>
+
+  {% if clase.unidad %}<p><small>{{ clase.unidad }}</small></p>{% endif %}
+  {% if clase.resumen %}<p>{{ clase.resumen }}</p>{% endif %}
+
+  {% if material %}
+  <h4>Material</h4>
+  <ul>
+    {% for contenido in material %}
+    <li>{% if contenido.id in hechos %}✔ {% endif %}{{ contenido.titulo }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if tareas %}
+  <h4>Tareas</h4>
+  <ul>
+    {% for contenido in tareas %}
+    <li>{% if contenido.id in hechos %}✔ {% endif %}{{ contenido.titulo }} <small>({{ contenido.get_formato_display }})</small></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <footer class="clase-en-vivo">
+    {% if presente %}
+    <p><mark>Presente registrado</mark></p>
+    {% endif %}
+    {% if en_vivo %}
+    <form method="post" action="{% url 'unirse' clase.id %}" target="_blank">
+      {% csrf_token %}
+      <button>Unirse a la clase en vivo</button>
+    </form>
+    {% elif not clase.link_videollamada %}
+    <p><small>Esta clase no tiene link de videollamada.</small></p>
+    {% elif termino %}
+    <p><small>La clase ya terminó.</small></p>
+    {% else %}
+    <p><small>El link en vivo se habilita 15 minutos antes del inicio.</small></p>
+    {% endif %}
+  </footer>
+</article>

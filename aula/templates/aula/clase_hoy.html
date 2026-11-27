@@ -1,0 +1,40 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}Clase de hoy{% endblock %}
+
+{% block contenido %}
+<h2>Clase de hoy</h2>
+
+{% for item in clases %}
+  {% include 'aula/_clase.html' with clase=item.clase material=item.material tareas=item.tareas hechos=item.hechos presente=item.presente en_vivo=item.en_vivo es_hoy=item.es_hoy termino=item.termino %}
+{% empty %}
+  <p>Hoy no tenés clases.</p>
+  {% if proxima %}
+  <article>
+    <p>
+      La próxima es el {{ proxima.fecha|date:'l j/n' }} a las {{ proxima.hora_inicio|time:'H:i' }}:
+      <strong>Clase {{ proxima.numero }}, {{ proxima.titulo }}</strong>
+      <small>({{ proxima.catedra.materia }})</small>
+    </p>
+    {% if proxima_habilitada %}
+    <a href="{% url 'clase' proxima.id %}">Ver la clase</a>
+    {% endif %}
+  </article>
+  {% endif %}
+{% endfor %}
+
+{% if habilitadas %}
+<section>
+  <h3>Para adelantar</h3>
+  <p><small>Clases de unidades que ya tenés abiertas.</small></p>
+  <ul>
+    {% for clase in habilitadas %}
+    <li>
+      <a href="{% url 'clase' clase.id %}">Clase {{ clase.numero }}: {{ clase.titulo }}</a>
+      <small>{{ clase.catedra.materia }} · {{ clase.fecha|date:'D j/n' }}</small>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

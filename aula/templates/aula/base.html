@@ -27,6 +27,9 @@
   </header>
 
   <main class="container">
+    {% for mensaje in messages %}
+    <article class="mensaje mensaje-{{ mensaje.tags }}" role="status">{{ mensaje }}</article>
+    {% endfor %}
     {% block contenido %}{% endblock %}
   </main>
 

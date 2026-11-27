@@ -222,3 +222,34 @@ nav.calendario-filtros a[aria-current="true"] {
 .agenda li small {
   display: block;
 }
+
+/* Clase del día (CU-05) y clase en vivo (CU-06). */
+.clase hgroup {
+  margin: 0;
+}
+
+.clase h4 {
+  margin: 1rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.clase-en-vivo form {
+  margin: 0;
+}
+
+.clase-en-vivo button {
+  width: 100%;
+}
+
+.clase-en-vivo p {
+  margin: 0;
+}
+
+/* Mensajes del sistema (framework de mensajes de Django). */
+.mensaje {
+  border-left: 3px solid var(--pico-primary);
+}
+
+.mensaje-error {
+  border-left-color: var(--pico-del-color);
+}
