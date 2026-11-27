@@ -18,6 +18,19 @@ MENUS = {
     ],
 }
 
+# Parámetros de la ruta que el tutor recibe como contexto de la pantalla
+# (ver aula/services/tutor_service.py, armar_contexto_pantalla).
+PARAMETROS_TUTOR = ('catedra_id', 'clase_id', 'contenido_id')
+
+
+def contexto_tutor(match):
+    """Pantalla actual y sus ids, para que el widget del tutor los mande con la pregunta."""
+    if match is None:
+        return {'pantalla': 'inicio'}
+    contexto = {'pantalla': match.url_name or 'inicio'}
+    contexto.update({k: v for k, v in match.kwargs.items() if k in PARAMETROS_TUTOR})
+    return contexto
+
 
 def navegacion(request):
     usuario = getattr(request, 'user', None)
@@ -42,4 +55,5 @@ def navegacion(request):
         'es_alumno': 'alumno' in grupos,
         'es_profesor': 'profesor' in grupos,
         'menu': menu,
+        'tutor': contexto_tutor(match) if 'alumno' in grupos else None,
     }

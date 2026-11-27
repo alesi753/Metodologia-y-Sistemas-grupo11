@@ -75,10 +75,7 @@ class TutorBackendTests(TestCase):
         )
         self.assertEqual(res.texto, 'Revisá la jerarquía normativa.')
         self.assertEqual(len(res.referencias), 1)
-        self.assertEqual(
-            res.referencias[0].url,
-            f"{reverse('roadmap', args=[self.catedra.id])}#contenido-{self.contenido.id}",
-        )
+        self.assertEqual(res.referencias[0].url, reverse('contenido', args=[self.contenido.id]))
 
     def test_endpoint_tutor_control_acceso_errores_y_exito(self):
         url = reverse('tutor_consultar')
@@ -124,7 +121,4 @@ class TutorBackendTests(TestCase):
         self.assertEqual(r_ok.status_code, 200)
         body = r_ok.json()
         self.assertEqual(body['texto'], 'Respuesta OK')
-        self.assertEqual(
-            body['referencias'][0]['url'],
-            f"{reverse('roadmap', args=[self.catedra.id])}#contenido-{self.contenido.id}",
-        )
+        self.assertEqual(body['referencias'][0]['url'], reverse('contenido', args=[self.contenido.id]))
