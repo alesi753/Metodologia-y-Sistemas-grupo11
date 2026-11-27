@@ -80,3 +80,145 @@ body.con-navegacion main {
 .fechas small {
   display: block;
 }
+
+/* Ficha del curso (CU-02). */
+.ficha dl {
+  margin: 0;
+}
+
+.ficha dt {
+  font-weight: bold;
+}
+
+.ficha dd {
+  margin: 0 0 0.75rem;
+}
+
+.ultimo-aviso header,
+.unidad header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.unidad-bloqueada {
+  opacity: 0.6;
+}
+
+/* Calendario (CU-04). */
+.calendario-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.calendario-encabezado h2 {
+  margin: 0;
+}
+
+.calendario-encabezado a {
+  padding: 0 0.75rem;
+  font-size: 1.75rem;
+  text-decoration: none;
+}
+
+nav.calendario-filtros ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+nav.calendario-filtros li {
+  padding: 0;
+  list-style: none;
+}
+
+nav.calendario-filtros a {
+  display: inline-block;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 999px;
+  text-decoration: none;
+}
+
+nav.calendario-filtros a[aria-current="true"] {
+  border-color: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+  background: var(--pico-primary-background);
+}
+
+.calendario-grilla {
+  table-layout: fixed;
+  margin-bottom: 0.5rem;
+}
+
+.calendario-grilla th,
+.calendario-grilla td {
+  padding: 0.35rem 0.1rem;
+  text-align: center;
+  vertical-align: top;
+}
+
+.calendario-grilla td.fuera-de-mes {
+  opacity: 0.35;
+}
+
+.calendario-grilla td.hoy > :first-child {
+  font-weight: bold;
+  color: var(--pico-primary);
+}
+
+.calendario-grilla .marcas {
+  min-height: 0.5rem;
+  line-height: 0;
+}
+
+.marca-clase,
+.marca-fecha {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin: 0 1px;
+  border-radius: 50%;
+}
+
+.marca-clase {
+  background: var(--pico-primary);
+}
+
+.marca-fecha {
+  background: #e8a33c;
+}
+
+.agenda article.hoy {
+  border-left: 3px solid var(--pico-primary);
+}
+
+.agenda ul {
+  margin: 0;
+  padding: 0;
+}
+
+.agenda li {
+  list-style: none;
+}
+
+.agenda li time {
+  display: inline-block;
+  min-width: 3rem;
+  font-weight: bold;
+}
+
+.agenda li.item-fecha {
+  border-left: 3px solid #e8a33c;
+  padding-left: 0.5rem;
+}
+
+.agenda li small {
+  display: block;
+}

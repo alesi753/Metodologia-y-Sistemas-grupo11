@@ -1,0 +1,22 @@
+{% extends 'aula/base.html' %}
+
+{% block titulo %}Avisos · {{ catedra.materia }}{% endblock %}
+
+{% block contenido %}
+<hgroup>
+  <h2>Avisos</h2>
+  <p><a href="{% url 'roadmap' catedra.id %}">{{ catedra.materia }}</a></p>
+</hgroup>
+
+{% for aviso in avisos %}
+<article class="aviso">
+  <header>
+    <strong>{{ aviso.titulo }}</strong>
+    <small>{{ aviso.publicado_en|date:'j/n/Y H:i' }}{% if aviso.autor %} · {{ aviso.autor }}{% endif %}</small>
+  </header>
+  {{ aviso.cuerpo|linebreaks }}
+</article>
+{% empty %}
+<p>La cátedra todavía no publicó avisos.</p>
+{% endfor %}
+{% endblock %}
