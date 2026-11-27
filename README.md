@@ -9,7 +9,7 @@ Aula virtual universitaria: cada cursada es un recorrido de unidades que se desb
 
 **Stack:** Python 3.12+ · Django 6.1 · SQLite · Pico CSS · OpenRouter / Anthropic.
 
-# Cómo levantarlo
+# Cómo levantar la demo
 
 1. Descargá el ZIP (**Code → Download ZIP**) y descomprimilo.
 2. Abrí `iniciar.bat` (Windows), `iniciar.command` (macOS) o `./iniciar.sh` (Linux). Python se instala solo.
