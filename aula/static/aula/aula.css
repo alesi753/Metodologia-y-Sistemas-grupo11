@@ -1,0 +1,42 @@
+/* Estilos propios del aula, sobre Pico CSS. */
+
+/* Navegación inferior fija, pensada para el celular. */
+.navegacion-inferior {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  background: var(--pico-background-color);
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.navegacion-inferior ul {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.navegacion-inferior li {
+  flex: 1;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.navegacion-inferior a {
+  display: block;
+  margin: 0;
+  padding: 0.75rem 0.25rem;
+  text-decoration: none;
+}
+
+.navegacion-inferior a[aria-current="page"] {
+  font-weight: bold;
+  color: var(--pico-primary);
+}
+
+/* Deja lugar para que la navegación no tape el final de la página. */
+body.con-navegacion main {
+  padding-bottom: 5rem;
+}
