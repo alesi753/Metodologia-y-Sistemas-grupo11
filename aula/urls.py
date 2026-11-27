@@ -6,12 +6,12 @@ from django.urls import path
 from .views import calendario, clase, contenido, cursada, inicio
 
 urlpatterns = [
-    path('', inicio.inicio, name='inicio'),
-    path('cursada/<int:catedra_id>/', cursada.roadmap, name='roadmap'),
-    path('cursada/<int:catedra_id>/avisos/', cursada.avisos, name='avisos'),
-    path('calendario/', calendario.calendario, name='calendario'),
-    path('clase/', clase.clase_hoy, name='clase_hoy'),
-    path('clase/<int:clase_id>/', clase.detalle, name='clase'),
-    path('clase/<int:clase_id>/unirse/', clase.unirse, name='unirse'),
-    path('contenido/<int:contenido_id>/', contenido.contenido, name='contenido'),
+    path("", inicio.inicio, name="inicio"),
+    path("cursada/<int:catedra_id>/", cursada.roadmap, name="roadmap"),
+    path("cursada/<int:catedra_id>/avisos/", cursada.avisos, name="avisos"),
+    path("calendario/", calendario.calendario, name="calendario"),
+    path("clase/", clase.clase_hoy, name="clase_hoy"),
+    path("clase/<int:clase_id>/", clase.detalle, name="clase"),
+    path("clase/<int:clase_id>/unirse/", clase.unirse, name="unirse"),
+    path("contenido/<int:contenido_id>/", contenido.contenido, name="contenido"),
 ]
