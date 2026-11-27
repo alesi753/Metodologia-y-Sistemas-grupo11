@@ -22,7 +22,8 @@ Para cerrar el aula, cerrá la ventana. Instalación manual y comandos de desarr
 
 | Tema | Documento |
 | --- | --- |
-| Instalación manual, variables, tests y estructura | [docs/desarrollo.md](docs/desarrollo.md) |
+| Instalación manual, variables, comandos y estructura | [docs/desarrollo.md](docs/desarrollo.md) |
+| Criterio de testing y casos elegidos | [docs/testing.md](docs/testing.md) |
 | Decisiones de diseño y patrones | [docs/decisiones-diseno.md](docs/decisiones-diseno.md) |
 | Plan de trabajo e incrementos | [docs/plan-de-trabajo.md](docs/plan-de-trabajo.md) |
 | Casos de uso del alumno y del profesor | [alumno.md](docs/casos-de-uso/alumno.md) · [profesor.md](docs/casos-de-uso/profesor.md) |
