@@ -1,12 +1,12 @@
 # Testing
 
+## Como correr los tests
 ```bash
 python manage.py test            # 122 tests, sin red, base temporal
 ```
 
 ## Criterio
-
-Probamos las **reglas del dominio** que, si fallan, rompen el recorrido del alumno o exponen datos ajenos: desbloqueo de unidades, cuándo se completa un contenido, la ventana de la clase en vivo y el acceso por rol. No probamos lo que ya garantiza Django (ORM, admin, login).
+Probamos las reglas del dominio que, si fallan, rompen el recorrido del alumno o exponen datos ajenos: desbloqueo de unidades, cuándo se completa un contenido, la ventana de la clase en vivo y el acceso por rol. No probamos lo que ya garantiza Django (ORM, admin, login).
 
 Por cada regla buscamos tres tipos de caso:
 
@@ -17,7 +17,6 @@ Por cada regla buscamos tres tipos de caso:
 La IA se reemplaza por `ProveedorFalso` y mocks: los tests no dependen de la red, son deterministas y verifican nuestra lógica, no la del modelo.
 
 ## Ejemplos
-
 | Regla | Caso | Tipo | Test |
 | --- | --- | --- | --- |
 | La clase en vivo abre 15 min antes y cierra al terminar | 18:14 cerrada, 18:15 abierta; 20:00 abierta, 20:01 cerrada | Límite | [`test_clase.py:136`](../aula/test_clase.py#L136), [`:140`](../aula/test_clase.py#L140) |
@@ -28,6 +27,5 @@ La IA se reemplaza por `ProveedorFalso` y mocks: los tests no dependen de la red
 | El endpoint del tutor valida acceso y entrada | 400, 403, 404 y 503 además del 200 | Error | [`test_tutor.py:80`](../aula/test_tutor.py#L80) |
 
 ## Limitaciones
-
 - Los mocks no prueban el proveedor de IA real; eso se verifica a mano con `python manage.py demo_ia`.
 - `tutor.js` no corre en ningún test: el cliente de Django no ejecuta JavaScript. Cubrirlo requiere un test E2E con navegador.
