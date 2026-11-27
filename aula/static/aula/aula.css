@@ -1,37 +1,45 @@
 /* Estilos propios del aula, sobre Pico CSS. */
 
-/* Navegación inferior fija, pensada para el celular. */
-.navegacion-inferior {
+/* Navegación inferior fija, pensada para el celular.
+   Los botones quedan siempre centrados, sin importar cuántos haya ni el
+   ancho de la pantalla: se reparten el espacio en partes iguales, con un
+   ancho máximo por botón, y el grupo se centra en la barra. */
+nav.navegacion-inferior {
   position: fixed;
   inset: auto 0 0 0;
   z-index: 10;
+  justify-content: center;
   background: var(--pico-background-color);
   border-top: 1px solid var(--pico-muted-border-color);
 }
 
-.navegacion-inferior ul {
+/* nav.… para ganarle a Pico, que corre los nav ul con margen negativo. */
+nav.navegacion-inferior ul {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   width: 100%;
-  margin: 0;
+  max-width: 40rem;
+  margin: 0 auto;
   padding: 0;
 }
 
-.navegacion-inferior li {
-  flex: 1;
+nav.navegacion-inferior li {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 12rem;
   padding: 0;
   list-style: none;
   text-align: center;
 }
 
-.navegacion-inferior a {
+nav.navegacion-inferior a {
   display: block;
   margin: 0;
   padding: 0.75rem 0.25rem;
   text-decoration: none;
 }
 
-.navegacion-inferior a[aria-current="page"] {
+nav.navegacion-inferior a[aria-current="page"] {
   font-weight: bold;
   color: var(--pico-primary);
 }
