@@ -36,7 +36,7 @@ class ClaseTests(TestCase):
         )
         self.client.force_login(self.alumno)
 
-    def clase(self, numero, dias, unidad=None, link=LINK, desde='00:00', hasta='23:59'):
+    def clase(self, numero, dias, unidad=None, link=LINK, desde='00:00', hasta='23:59:59'):
         return Clase.objects.create(
             catedra=self.catedra, numero=numero, fecha=self.hoy + timedelta(days=dias),
             hora_inicio=time.fromisoformat(desde), hora_fin=time.fromisoformat(hasta),
@@ -102,7 +102,8 @@ class ClaseTests(TestCase):
         self.assertContains(self.client.get(reverse('clase_hoy')), 'Presente registrado')
 
     def test_no_se_puede_unir_a_una_clase_que_no_esta_en_vivo(self):
-        for clase in (self.clase(1, 1), self.clase(2, -1)):
+        # Pasado mañana y no mañana: una clase de mañana a las 00:00 abre a las 23:45 de hoy.
+        for clase in (self.clase(1, 2), self.clase(2, -1)):
             respuesta = self.unirse(clase)
             self.assertRedirects(respuesta, reverse('clase', args=[clase.id]))
         self.assertFalse(Asistencia.objects.exists())
