@@ -7,7 +7,18 @@ python manage.py test --tag=e2e          # solo el recorrido E2E en navegador
 python manage.py test --exclude-tag=e2e  # todo menos el E2E
 ```
 
-El E2E necesita Playwright (una vez: `pip install -r requirements-dev.txt && playwright install chromium`). Sin eso se saltea y el resto corre igual.
+El E2E necesita preparar el entorno de desarrollo (ver abajo). Sin eso se saltea y el resto corre igual.
+
+## Entorno de desarrollo para el E2E
+
+Una sola vez, con el entorno virtual activado:
+
+```bash
+pip install -r requirements-dev.txt   # Playwright
+playwright install chromium           # el navegador (~125 MB)
+```
+
+Estas dependencias van aparte de `requirements.txt` a propósito: el lanzador `iniciar.*` solo instala lo que necesita quien usa el aula, y el navegador de pruebas pesaría de más. Si Playwright se actualiza y el E2E se saltea pidiendo el navegador, hay que repetir `playwright install chromium`.
 
 ## Criterio
 Probamos las reglas del dominio que, si fallan, rompen el recorrido del alumno o exponen datos ajenos: desbloqueo de unidades, cuándo se completa un contenido, la ventana de la clase en vivo y el acceso por rol. No probamos lo que ya garantiza Django (ORM, admin, login).
