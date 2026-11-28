@@ -2,9 +2,9 @@
 
 Cubre lo que el cliente de Django no puede: el JavaScript del tutor y el
 recorrido completo entre pantallas. No corre con la suite normal si Playwright
-no está instalado. Para correrlo:
+no está instalado. Preparación del entorno en docs/testing.md. Para correrlo:
 
-    pip install -r requirements-dev.txt && playwright install chromium
+    uv pip install -r requirements-dev.txt && playwright install chromium
     python manage.py test --tag=e2e
 """
 import os

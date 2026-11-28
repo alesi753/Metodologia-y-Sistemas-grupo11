@@ -11,12 +11,14 @@ El E2E necesita preparar el entorno de desarrollo (ver abajo). Sin eso se saltea
 
 ## Entorno de desarrollo para el E2E
 
-Una sola vez, con el entorno virtual activado:
+Una sola vez, con el entorno virtual activado (`source .venv/bin/activate`; en fish, `activate.fish`):
 
 ```bash
-pip install -r requirements-dev.txt   # Playwright
-playwright install chromium           # el navegador (~125 MB)
+uv pip install -r requirements-dev.txt   # Playwright
+playwright install chromium              # el navegador (~125 MB)
 ```
+
+El entorno que crea el lanzador (`iniciar.*`) no trae `pip`, y el `pip` del sistema falla en distribuciones como Arch con `externally-managed-environment`. Por eso usamos `uv`, que el lanzador ya instaló. Si armaste el entorno a mano con `python -m venv .venv` (como en [desarrollo.md](desarrollo.md#instalación-manual)), `pip install -r requirements-dev.txt` también sirve.
 
 Estas dependencias van aparte de `requirements.txt` a propósito: el lanzador `iniciar.*` solo instala lo que necesita quien usa el aula, y el navegador de pruebas pesaría de más. Si Playwright se actualiza y el E2E se saltea pidiendo el navegador, hay que repetir `playwright install chromium`.
 
