@@ -11,25 +11,50 @@ El E2E necesita preparar el entorno de desarrollo (ver abajo). Sin eso se saltea
 
 ## Entorno de desarrollo para el E2E
 
-Una sola vez, desde la carpeta del proyecto. Sin activar nada, con el Python del entorno que creó el lanzador (`.venv`):
+Un solo bloque, desde la carpeta del proyecto (la que tiene `manage.py`). No depende de haber abierto antes el lanzador ni de activar nada: instala `uv` si falta, crea `.venv` si no existe, instala todo, baja el navegador (~125 MB la primera vez) y corre los tests. Se puede repetir las veces que haga falta.
 
-```bash
-# Linux y macOS
-uv pip install --python .venv/bin/python -r requirements-dev.txt   # Playwright
-.venv/bin/python -m playwright install chromium                    # el navegador (~125 MB)
-```
+**Windows** (PowerShell, también la terminal de Visual Studio o VS Code):
 
 ```powershell
-# Windows (PowerShell o cmd)
-uv pip install --python .venv\Scripts\python.exe -r requirements-dev.txt
-.venv\Scripts\python.exe -m playwright install chromium
+& {
+    $ErrorActionPreference = 'Stop'
+    if (-not (Test-Path manage.py)) { throw 'Abrí la terminal en la carpeta del proyecto (la que tiene manage.py)' }
+    if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+        irm https://astral.sh/uv/install.ps1 | iex
+        $env:Path = "$env:USERPROFILE\.local\bin;$env:Path"
+    }
+    if (-not (Test-Path .venv\Scripts\python.exe)) { uv venv --python '>=3.12' .venv }
+    uv pip install --python .venv\Scripts\python.exe -r requirements.txt -r requirements-dev.txt
+    .venv\Scripts\python.exe -m playwright install chromium
+    .venv\Scripts\python.exe manage.py test
+}
 ```
 
-Si `uv` no se reconoce en una terminal nueva, el lanzador lo instaló en `%USERPROFILE%\.local\bin` (Windows) o `~/.local/bin` (Linux y macOS): cerrá y abrí la terminal, o llamalo con esa ruta.
+**Linux, macOS y Git Bash en Windows** (bash o zsh):
 
-El entorno que crea el lanzador (`iniciar.*`) no trae `pip`, y el `pip` del sistema falla en distribuciones como Arch con `externally-managed-environment`. Por eso usamos `uv`. Si armaste el entorno a mano con `python -m venv .venv` (como en [desarrollo.md](desarrollo.md#instalación-manual)), `pip install -r requirements-dev.txt` también sirve.
+```bash
+(
+    set -e
+    [ -f manage.py ] || { echo 'Abrí la terminal en la carpeta del proyecto (la que tiene manage.py)'; exit 1; }
+    if ! command -v uv >/dev/null; then
+        if [ "$OS" = Windows_NT ]; then
+            powershell -NoProfile -ExecutionPolicy Bypass -c 'irm https://astral.sh/uv/install.ps1 | iex'
+        else
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+        fi
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+    [ -x .venv/bin/python ] || [ -f .venv/Scripts/python.exe ] || uv venv --python '>=3.12' .venv
+    PY=.venv/bin/python; [ -x "$PY" ] || PY=.venv/Scripts/python.exe   # en Windows el entorno usa Scripts/
+    uv pip install --python "$PY" -r requirements.txt -r requirements-dev.txt
+    "$PY" -m playwright install chromium
+    "$PY" manage.py test
+)
+```
 
-Con el entorno activado (`source .venv/bin/activate`; en fish, `activate.fish`; en PowerShell, `.venv\Scripts\Activate.ps1`; en cmd, `.venv\Scripts\activate.bat`) los comandos de arriba se acortan a `uv pip install -r requirements-dev.txt` y `playwright install chromium`, y los tests se corren con `python manage.py test`. Sin activarlo: `.venv/bin/python manage.py test` o `.venv\Scripts\python.exe manage.py test`.
+Por qué `uv` y no `pip`: el entorno que crea el lanzador no trae `pip`, y el `pip` del sistema falla en distribuciones como Arch con `externally-managed-environment`. Si armaste el entorno a mano con `python -m venv .venv` (como en [desarrollo.md](desarrollo.md#instalación-manual)), `pip install -r requirements-dev.txt` también sirve.
+
+Para usar el entorno sin escribir la ruta cada vez, activalo: `source .venv/bin/activate` (en fish, `activate.fish`), `.venv\Scripts\Activate.ps1` en PowerShell, `.venv\Scripts\activate.bat` en cmd o `source .venv/Scripts/activate` en Git Bash. Después alcanza con `python manage.py test`.
 
 Estas dependencias van aparte de `requirements.txt` a propósito: el lanzador `iniciar.*` solo instala lo que necesita quien usa el aula, y el navegador de pruebas pesaría de más. Si Playwright se actualiza y el E2E se saltea pidiendo el navegador, hay que repetir `playwright install chromium`.
 
