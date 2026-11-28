@@ -2,8 +2,12 @@
 
 ## Como correr los tests
 ```bash
-python manage.py test            # 122 tests, sin red, base temporal
+python manage.py test                     # 122 tests rápidos, sin red, base temporal
+python manage.py test --tag=e2e          # solo el recorrido E2E en navegador
+python manage.py test --exclude-tag=e2e  # todo menos el E2E
 ```
+
+El E2E necesita Playwright (una vez: `pip install -r requirements-dev.txt && playwright install chromium`). Sin eso se saltea y el resto corre igual.
 
 ## Criterio
 Probamos las reglas del dominio que, si fallan, rompen el recorrido del alumno o exponen datos ajenos: desbloqueo de unidades, cuándo se completa un contenido, la ventana de la clase en vivo y el acceso por rol. No probamos lo que ya garantiza Django (ORM, admin, login).
@@ -26,6 +30,17 @@ La IA se reemplaza por `ProveedorFalso` y mocks: los tests no dependen de la red
 | Un alumno no ve contenido ajeno ni borradores | ambos dan 404, no 403, para no revelar que existen | Error | [`test_contenido.py:146`](../aula/test_contenido.py#L146) |
 | El endpoint del tutor valida acceso y entrada | 400, 403, 404 y 503 además del 200 | Error | [`test_tutor.py:80`](../aula/test_tutor.py#L80) |
 
+## E2E del alumno
+
+[`aula/test_e2e_alumno.py`](../aula/test_e2e_alumno.py) maneja un Chromium real contra el aula levantada de verdad. Es lo único que ejecuta `tutor.js`, y verifica que las pantallas funcionen encadenadas.
+
+- **Un recorrido feliz** que toca CU-01 a CU-08: hub, cursada y avisos, calendario con filtro, clase de hoy y asistencia, cuestionario que desbloquea la unidad siguiente, y tutor con un enlace que lleva al material.
+- **Un caso de error:** entrar por URL a un contenido de una unidad bloqueada explica qué falta.
+- **Pocos y largos a propósito:** son lentos y frágiles, así que cubren solo el flujo crítico; las reglas finas ya están en los tests unitarios y de integración.
+- **Datos y IA:** usa los datos de `cargar_demo` con tres ajustes para no depender del día ni de la hora (clase abierta hoy, unidad lista para desbloquear, tutor con una referencia real). La IA es `ProveedorFalso`, así que no usa red ni la clave.
+- **Buscar por lo que ve el usuario:** los elementos se ubican por rol y texto visible, no por clases CSS.
+
 ## Limitaciones
 - Los mocks no prueban el proveedor de IA real; eso se verifica a mano con `python manage.py demo_ia`.
-- `tutor.js` no corre en ningún test: el cliente de Django no ejecuta JavaScript. Cubrirlo requiere un test E2E con navegador.
+- El E2E prueba que el widget y el endpoint funcionan juntos, no la calidad de las respuestas del modelo.
+- El E2E corre en un solo navegador (Chromium) y a un solo tamaño de pantalla.
