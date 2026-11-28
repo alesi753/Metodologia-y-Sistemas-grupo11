@@ -34,8 +34,9 @@ python manage.py runserver
 ## Comandos
 
 ```bash
-python manage.py check && python manage.py test   # validación antes de un PR (122 tests, sin red)
+python manage.py check && python manage.py test   # validación antes de un PR (sin red; el E2E se saltea si falta Playwright)
 python manage.py test aula.test_tutor             # un módulo puntual
+python manage.py test --tag=e2e                   # solo el E2E (preparación en testing.md)
 python manage.py cargar_demo --reset              # datos de ejemplo desde cero
 python manage.py demo_ia --falso                  # los 3 casos de uso de IA por consola
 ```
